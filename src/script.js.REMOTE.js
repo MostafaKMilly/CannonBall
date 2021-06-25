@@ -16,7 +16,7 @@ import { loadFlagBaseTextures } from './config/flagBaseTextures'
 import flagVertexShader from './shaders/FlagSheders/vertex.glsl'
 import flagFragmentShader from './shaders/FlagSheders/fragment.glsl'
 import { loadFlagTexture } from './config/FlagTexture'
-import vector from './physics/vector'
+
 /*
     Variables
 */
@@ -42,7 +42,7 @@ let score = 0
 */
 const paramters = {
     windSpeed: 10,
-    windAngle: Math.PI/2
+    windAngle: 0
 }
 
 /*
@@ -399,9 +399,6 @@ const updateCannon = () => {
     angleXZ = Math.acos(cannonDirection.clone().x)
     /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
      */
-
-    // angleXY = Math.PI /4
-    // angleXZ = Math.PI/ 3
 }
 
 const clock = new THREE.Clock()
@@ -439,8 +436,8 @@ const createCannonBall = () => {
     cannonBall.castShadow = true
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
-    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 50, angleXY, angleXZ
-        , radias, count, 1, DRAG_COEFF, vector.create(5,1,-10), RESISTANSE_COEFF, FRICTION_COEFF)
+    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 5, angleXY, angleXZ
+        , reduis, count, 1, DRAG_COEFF, LIFT_COEFF, RESISTANSE_COEFF, FRICTION_COEFF)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,

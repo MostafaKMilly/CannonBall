@@ -19,7 +19,7 @@ class Ball {
         this.raduis = raduis / 100; //m
         this.rho = 0;
         if (this.type == 1) {
-            this.rho = 500; // kg/m^3  wood
+            this.rho = 5000; // kg/m^3  wood
         }
         else if (this.type == 2) {
             this.rho = 7860; // steel
@@ -63,9 +63,9 @@ class Ball {
 
         this.velocity.addTo(acc ,time);
 
-        this.position.x += (this.velocity.getX() * time)
-        this.position.y += (this.velocity.getY() * time)
-        this.position.z -= (this.velocity.getZ() * time)
+        this.position.x += (this.velocity.getX() * time*10)
+        this.position.y += (this.velocity.getY() * time*10)
+        this.position.z -= (this.velocity.getZ() * time*10)
         //another porjectile 
         this.bouncing(this.resistanse_coeff, this.friction_coeff)
         //	this.position.addTo(this.velocity,time);
