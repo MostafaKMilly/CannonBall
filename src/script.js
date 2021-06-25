@@ -399,8 +399,7 @@ const updateCannon = () => {
     angleXZ = Math.acos(cannonDirection.clone().x)
     /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
      */
-    angleXY = Math.PI/4
-    angleXZ = Math.PI/4
+
 
 }
 
@@ -423,7 +422,7 @@ let radius = 5
 let count = 0
 const objectsToUpdate = []
 const createCannonBall = () => {
-  //  count++
+   count++
    // radius++
 
     if(count >3)
@@ -443,7 +442,7 @@ const createCannonBall = () => {
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
     let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 20, angleXY, angleXZ
-        , radius, 3, 1, DRAG_COEFF, vector.create(50,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
+        , radius, count, 1, DRAG_COEFF, vector.create(50,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,

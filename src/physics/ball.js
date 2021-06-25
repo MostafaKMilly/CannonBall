@@ -16,8 +16,8 @@ class Ball {
         this.angular_velocity=angular_velocity
         this.resistanse_coeff = resistanse_coeff
         this.friction_coeff = friction_coeff
-     //   this.raduis = raduis / 100; //m  -----------------------------------
-     this.raduis=0.1
+       this.raduis = raduis / 100; //m  -----------------------------------
+    //  this.raduis=0.1
         this.rho = 0;
         if (this.type == 1) {
             this.rho = 500; // kg/m^3  wood
@@ -58,7 +58,7 @@ class Ball {
         //let windForce = this.wind_force(air_rho, wind_velo);
 
 
-        //let liftForce = vector.create(0, 0, 0);
+        // let liftForce = vector.create(0, 0, 0);
         let liftForce = this.lift_force(air_rho, wind_velo);
         //  console.log("liftForce")
         // console.log(liftForce)
@@ -101,7 +101,6 @@ class Ball {
             this.position.y = 3.0
             this.velocity._y *= -res_coeff
           
-             console.log(this.position.x + " " + this.position.y + " " + this.position.z) 
         }
     }
     gravity_force(gravity) {
@@ -137,7 +136,7 @@ class Ball {
     }
 
     lift_force(rho, wind_velo) {
-
+        // let lift_coeff = 0.5
         let lift_coeff =this.raduis*this.angular_velocity.getLength()/this.velocity.getLength() // cl=r*ω/v
         // let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
         //     this.velocity.getY() - wind_velo.getY(),
@@ -147,16 +146,16 @@ class Ball {
 
        // let angu_normalize = this.angular_velocity.normalize()
 
-         let velocitySquere = this.velocity.squere()
-        let rotate = vector.create(0, 1, 0)
+         let velocitySquere = this.velocity.getLength()*this.velocity.getLength()
+        let rotate = vector.create(1, 0, 0)
         let cross = rotate.cross(this.velocity)
        // let cross =rotate.cross(velo_normalize)
        // console.log(cross)
        
         let lift = vector.create(
-            velocitySquere.getX() * 1 / 2 * lift_coeff * rho * this.area * cross.getX(),
-           - velocitySquere.getY() * 1 / 2 * lift_coeff * rho * this.area * cross.getY(),
-            velocitySquere.getZ() * 1 / 2 * lift_coeff * rho * this.area * cross.getZ()
+            velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getX(),
+           - velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getY(),
+            velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getZ()
         )
         return lift
 

@@ -134,9 +134,9 @@ var vector = {
 
 	cross: function (vec) {
 
-		return vector.create(this._y * vec.getZ() - this._z * vec.getY(),
+		return vector.create(this._z * vec.getY() - this._y * vec.getZ(),
 			this._z * vec.getX() - this._x * vec.getZ(),
-			this._x * vec.getY() - this._y * vec.getX())
+			this._y * vec.getX() - this._x * vec.getY())
 	},
 
 	clone: function () {
