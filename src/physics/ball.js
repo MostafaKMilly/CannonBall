@@ -20,12 +20,17 @@ class Ball {
         this.rho = 0;
         if (this.type == 1) {
             this.rho = 5000; // kg/m^3  wood
+            console.log("type is wood")
         }
         else if (this.type == 2) {
             this.rho = 7860; // steel
+            console.log("type is steel")
+
         }
         else if (this.type == 3) {
             this.rho = 1100; // rubber
+            console.log("type is rubber")
+
         }
         if (this.type == 0) { // user value
             this.mass = mass
