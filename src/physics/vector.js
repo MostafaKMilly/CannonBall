@@ -90,13 +90,13 @@ var vector = {
 	// 	return vector.create(this._x - v2.getX(), this._y - v2.getY());
 	// },
 
-	// multiply: function(val) {
-	// 	return vector.create(this._x * val, this._y * val);
-	// },
+	multiply_divide: function(vec ,val) {
+		return vector.create(this._x * val /vec.getX() ||0, this._y * val/vec.getY() || 0, this._z * val/ vec.getZ() ||0);
+	},
 
-	// divide: function(val) {
-	// 	return vector.create(this._x / val, this._y / val);
-	// },
+	 divide: function(vec) {
+		return vector.create(this._x /vec.getX(), this._y /vec.getY(), this._z/vec.getZ());
+	 },
 
 	addTo: function (v2 , time) {
 

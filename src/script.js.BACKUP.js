@@ -403,8 +403,6 @@ const updateCannon = () => {
 
 }
 
-}
-
 const clock = new THREE.Clock()
 let oldElapsedTime = 0
 
@@ -431,7 +429,7 @@ const createCannonBall = () => {
     console.log("ciubt + " +  count)
     numberOfBalls--
     numberOfBallsScreen.innerHTML = numberOfBalls
-    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(reduis, 32, 32), new THREE.MeshStandardMaterial({
+    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(reduis, 64, 64), new THREE.MeshStandardMaterial({
         map: cannonTextures.cannonColorTexture,
         aoMap: cannonTextures.cannonAmbientOcclusionTexture,
         roughnessMap: cannonTextures.cannonRoughnessTexture,

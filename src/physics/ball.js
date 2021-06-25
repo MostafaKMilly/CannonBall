@@ -4,7 +4,7 @@ import * as THREE from 'three'
 class Ball {
 
     constructor(position, speed, angleXY, angleXZ, raduis, type, mass, drag_coeff,
-        lift_coeff, resistanse_coeff, friction_coeff) {
+        angular_velocity, resistanse_coeff, friction_coeff) {
         let a = vector.create(3, -3, 1)
         let b = vector.create(4, 9, 2)
         console.log(a.cross(b))
@@ -13,7 +13,7 @@ class Ball {
         this.velocity.inits(speed, angleXY, angleXZ)
         this.type = type
         this.drag_coeff = drag_coeff
-        this.lift_coeff = lift_coeff
+        this.angular_velocity=angular_velocity
         this.resistanse_coeff = resistanse_coeff
         this.friction_coeff = friction_coeff
         this.raduis = raduis / 100; //m
@@ -52,13 +52,13 @@ class Ball {
         let air_rho = this.calc_air_rho(gravity, height, tempereture)
         let wind_velo = this.calc_wind_velo(wind_speed, wind_angle)
         //   let dragForce = vector.create(0, 0, 0); 
-        let dragForce = this.drag_force(air_rho, this.drag_coeff);
-        //      let windForce = vector.create(0, 0, 0);
-        let windForce = this.wind_force(air_rho, wind_velo);
+        let dragForce = this.drag_force(air_rho);
+              let windForce = vector.create(0, 0, 0);
+        //let windForce = this.wind_force(air_rho, wind_velo);
 
 
-        // let liftForce = vector.create(0, 0, 0);
-        let liftForce = this.lift_force(air_rho, this.lift_coeff, wind_velo);
+    // let liftForce = vector.create(0, 0, 0);
+        let liftForce = this.lift_force(air_rho, wind_velo);
         //  console.log("liftForce")
         // console.log(liftForce)
         let totalForce = vector.create(dragForce.getX() + windForce.getX() + liftForce.getX(),
@@ -98,16 +98,9 @@ class Ball {
         }
         if (this.position.y < 3.0) {
             this.position.y = 3.0
-
-
-            // if(this.type == 1)
-            // this.velocity._y*= -0.603
-            // else if(this.type == 2)
-            // this.velocity._y*= -0.597
-            // if(this.type == 3)
             this.velocity._y *= -res_coeff
-            //  console.log(res_coeff)
-            /* console.log(this.position.x + " " + this.position.y + " " + this.position.z) */
+          
+             console.log(this.position.x + " " + this.position.y + " " + this.position.z) 
         }
     }
     gravity_force(gravity) {
@@ -115,15 +108,15 @@ class Ball {
         return vector.create(0, - gravity * this.mass, 0)
     }
 
-    drag_force(rho, drag_coeff) {
+    drag_force(rho) {
 
         let velocitySquere = this.velocity.squere()
 
         let normalize = this.velocity.normalize()
         let drag = vector.create(
-            velocitySquere.getX() * -1 / 2 * drag_coeff * rho * this.area * normalize.getX(),
-            velocitySquere.getY() * -1 / 2 * drag_coeff * rho * this.area * normalize.getY(),
-            velocitySquere.getZ() * -1 / 2 * drag_coeff * rho * this.area * normalize.getZ()
+            velocitySquere.getX() * -1 / 2 * this.drag_coeff * rho * this.area * normalize.getX(),
+            velocitySquere.getY() * -1 / 2 * this.drag_coeff * rho * this.area * normalize.getY(),
+            velocitySquere.getZ() * -1 / 2 * this.drag_coeff * rho * this.area * normalize.getZ()
         )
         return drag
     }
@@ -134,30 +127,33 @@ class Ball {
         let velocitySquere = wind_velo.squere()
         let normalize = wind_velo.normalize()
 
-        let drag = vector.create(
+        let wind= vector.create(
             velocitySquere.getX() * 1 / 2 * rho * this.area * normalize.getX(),
             0,
             velocitySquere.getZ() * 1 / 2 * rho * this.area * normalize.getZ()
         )
-        return drag
+        return wind
     }
 
-    lift_force(rho, lift_coeff, wind_velo) {
+    lift_force(rho, wind_velo) {
 
+        let lift_coeff =this.velocity.multiply_divide(this.angular_velocity,this.raduis) // cl=r*v/w
+        // console.log("lift coeff")
+        // console.log(lift_coeff)
         let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
             this.velocity.getY() - wind_velo.getY(),
             this.velocity.getZ() - wind_velo.getZ())
         let velocitySquere = velo.squere()
 
-        let normalize = velo.normalize()
-
-        let zVec = vector.create(0, 1, 0)
-        let cross = zVec.cross(normalize)
-
+        let velo_normalize = velo.normalize()
+        let angu_normalize = this.angular_velocity.normalize()
+        let yVec = vector.create(0, 1, 0)
+        let cross = angu_normalize.cross(velo_normalize)
+       // console.log(cross)
         let lift = vector.create(
-            velocitySquere.getX() * 1 / 2 * lift_coeff * rho * this.area * cross.getX(),
-            velocitySquere.getY() * 1 / 2 * lift_coeff * rho * this.area * cross.getY(),
-            velocitySquere.getZ() * 1 / 2 * lift_coeff * rho * this.area * cross.getZ()
+            velocitySquere.getX() * 1 / 2 * lift_coeff.getX() * rho * this.area * cross.getX(),
+            velocitySquere.getY() * 1 / 2 * lift_coeff.getY() * rho * this.area * cross.getY(),
+            velocitySquere.getZ() * 1 / 2 * lift_coeff.getZ() * rho * this.area * cross.getZ()
         )
         // console.log("lift")
         // console.log(lift)
@@ -184,40 +180,4 @@ class Ball {
 
 }
 export default Ball
-
-
-/*
-air rho=1.225
-drag_coeff= 0.47
-ball rho=500
-raduis = 0.1
-mass=rho * pi * raduis^3
-
-angle 45 45
-speed 30
-99 3 108    without
-101 3 107   with
-
-
-angle 45 90
-speed 50
-0, 3, -77 without
-0, 3, -86 with
-
-angle 45 90
-speed 30
-0, 3, 87 without
-0, 3, 79 with
-
-angle 60 60
-speed 30
-85 3 105  without
-83 3 106  with
-
-
-angle 60 90
-speed 80
-0 3 -392  without
-0 3 -358  with
-*/
 
