@@ -55,9 +55,70 @@ html,body {
     right: 0;
     left: 0;
     margin: 60px;
-    margin-left: 70px ;
+    margin-left: 120px ;
     font-size: 21px;
     font-family: 'monospace', Tahoma, Geneva, Verdana, sans-serif;
     color: black;
 }
 
+.cannonBallsImage {
+    background: url('./icons/cannonballs.png') no-repeat 100px 100px;
+    position: absolute;
+    width: auto;
+    height: 196px;
+    left: 0;
+    background-size: 50px 50px;
+    bottom: 0;
+    right: 0;
+    margin-left: -40px;
+}
+
+@media screen and (max-width: 425px) {
+    .cannonBallsImage {
+        margin-left: -68px;
+        margin-bottom: -10px;
+        background-size: 35px 35px;
+    }
+    .cannonBalls {
+        margin-left: 81px;
+        color: white;
+        font-size: 15px;
+    }
+}
+.targetInfo {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: 60px;
+    margin-left: 268px ;
+    font-size: 21px;
+    font-family: 'monospace', Tahoma, Geneva, Verdana, sans-serif;
+    color: black;
+}
+
+.targetImage {
+    background: url('./icons/target.png') no-repeat 100px 100px;
+    position: absolute;
+    width: auto;
+    height: 196px;
+    left: 0;
+    background-size: 50px 50px;
+    bottom: 0;
+    right: 0;
+    margin-left: 100px;
+}
+
+@media screen and (max-width: 425px) {
+    .targetImage {
+        margin-left: -68px;
+        margin-bottom: 58px;
+        background-size: 35px 35px;
+    }
+    .targetInfo {
+        margin-left: 81px;
+        margin-bottom: 127px;
+        color: white;
+        font-size: 15px;
+    }
+}

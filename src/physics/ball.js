@@ -102,7 +102,7 @@ class Ball {
             // if(this.type == 3)
             this.velocity._y *= -res_coeff
             //  console.log(res_coeff)
-            console.log(this.position.x + " " + this.position.y + " " + this.position.z)
+            /* console.log(this.position.x + " " + this.position.y + " " + this.position.z) */
         }
     }
     gravity_force(gravity) {
