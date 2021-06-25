@@ -443,7 +443,7 @@ const createCannonBall = () => {
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
     let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 20, angleXY, angleXZ
-        , radius, 3, 1, DRAG_COEFF, vector.create(500,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
+        , radius, 3, 1, DRAG_COEFF, vector.create(50,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,

@@ -58,8 +58,8 @@ class Ball {
         //let windForce = this.wind_force(air_rho, wind_velo);
 
 
-        let liftForce = vector.create(0, 0, 0);
-        //let liftForce = this.lift_force(air_rho, wind_velo);
+        //let liftForce = vector.create(0, 0, 0);
+        let liftForce = this.lift_force(air_rho, wind_velo);
         //  console.log("liftForce")
         // console.log(liftForce)
         let totalForce = vector.create(dragForce.getX() + windForce.getX() + liftForce.getX(),
@@ -139,16 +139,20 @@ class Ball {
     lift_force(rho, wind_velo) {
 
         let lift_coeff =this.raduis*this.angular_velocity.getLength()/this.velocity.getLength() // cl=r*ω/v
-        let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
-            this.velocity.getY() - wind_velo.getY(),
-            this.velocity.getZ() - wind_velo.getZ())
-        let velocitySquere = velo.squere()
+        // let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
+        //     this.velocity.getY() - wind_velo.getY(),
+        //     this.velocity.getZ() - wind_velo.getZ())
+        // let velocitySquere = velo.squere()
+      //  let velo_normalize = velo.normalize()
 
-        let velo_normalize = velo.normalize()
        // let angu_normalize = this.angular_velocity.normalize()
-        let yVec = vector.create(1, 0, 0)
-        let cross =yVec.cross(velo_normalize)
+
+         let velocitySquere = this.velocity.squere()
+        let rotate = vector.create(0, 1, 0)
+        let cross = rotate.cross(this.velocity)
+       // let cross =rotate.cross(velo_normalize)
        // console.log(cross)
+       
         let lift = vector.create(
             velocitySquere.getX() * 1 / 2 * lift_coeff * rho * this.area * cross.getX(),
            - velocitySquere.getY() * 1 / 2 * lift_coeff * rho * this.area * cross.getY(),
@@ -178,36 +182,18 @@ class Ball {
 export default Ball
 
 /*
-173.40209818169873 3 365.2564571124903
-104 310.200367237661 3 142.15915905132115
-104 418.09243513798 3 -28.74107401704832
-104 504.57289595244055 3 -162.6537326585623
-104 574.8207092476705 3 -269.49566413952533
 
- magnus x
-172.78713321080278 3 366.24870676532396          
-104 308.7781685940934 3 144.42187049477988
-104 416.36969286818197 3 -26.037751146195255
-104 502.4207417280695 3 -159.31385320034732
-
-
-magnus y
-173.35885355131146 3 364.9951048837173
-104 309.9325427656382 3 141.4840618386071
-104 417.52309728037625 3 -29.942292911548957
 
 pi/4
-282.2878314447725 3 376.71217562207124
-104 501.9871285117073 3 157.01288348403202
-104 672.1012414866461 3 -13.101225994717247
 
+283.41759582357275 3 375.58241126991925
+505.8709279497639 3 153.12908412995657
+679.3685051206678 3 -20.36848948236554
 
 magnus y
-282.6271593813461 3 376.323219615463
-104 504.27826843595915 3 154.4573707569714
-
-
-283.1725467908016 3 375.82746029689474
-ball.js:104 504.6297753440438 3 154.3702367089417
-ball.js:104 677.0156576353753 3 -18.015642044334463
+389.3470423741184 3 449.05571950198254
+844.8473174923424 3 345.4344451788438
+1274.5601432252008 3 283.0241834790661
+1645.4809690368195 3 241.16214866556183
+1952.6159751371206 3 211.4542239593646
 */
