@@ -399,7 +399,8 @@ const updateCannon = () => {
     angleXZ = Math.acos(cannonDirection.clone().x)
     /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
      */
-
+    angleXY = Math.PI/4
+    angleXZ = Math.PI/4
 
 }
 
@@ -414,7 +415,7 @@ let rayOrigin
 let rayDirection = new THREE.Vector3(0, 0, -0.000000001)
 rayDirection.normalize()
 let currentInstersect = null
-let radius = 1
+let radius = 5
 
 /*
     Utils
@@ -422,8 +423,8 @@ let radius = 1
 let count = 0
 const objectsToUpdate = []
 const createCannonBall = () => {
-    count++
-    radius++
+  //  count++
+   // radius++
 
     if(count >3)
     count=1
@@ -441,8 +442,8 @@ const createCannonBall = () => {
     cannonBall.castShadow = true
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
-    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 50, angleXY, angleXZ
-        , radius, count, 1, DRAG_COEFF, vector.create(5,1,-10), RESISTANSE_COEFF, FRICTION_COEFF)
+    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 20, angleXY, angleXZ
+        , radius, 3, 1, DRAG_COEFF, vector.create(500,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,
