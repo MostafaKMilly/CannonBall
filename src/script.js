@@ -35,7 +35,8 @@ const LIFT_COEFF = 0.1
 const RESISTANSE_COEFF = 0.1, FRICTION_COEFF = 0.1
 const SHOOT_DELAY = 1000
 let lastShotingTime = 0
-
+let numberOfBalls = 20
+let score = 0
 /*
     Paramters
 */
@@ -61,6 +62,14 @@ const gltfLoader = new GLTFLoader(loadingManger)
 const textureLoader = new THREE.TextureLoader(loadingManger)
 
 
+/*
+    Game Screen
+*/
+const numberOfBallsScreen = document.querySelector('.cannonBallsNumber');
+numberOfBallsScreen.innerHTML  = numberOfBalls
+
+const scoreScreen = document.querySelector('.ScoreNumber')
+scoreScreen.innerHTML = score
 /*
     Configure Scene
 */
@@ -146,7 +155,7 @@ window.addEventListener('touchmove', (event) => {
 
 })
 window.addEventListener("mousedown", () => {
-    if (window.performance.now() - lastShotingTime > SHOOT_DELAY) {
+    if (numberOfBalls && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
         createCannonBall()
         lastShotingTime = window.performance.now()
     }
@@ -262,25 +271,15 @@ flag.position.y = 25.928
 flag.scale.y = 2 / 3
 scene.add(flag)
 
-const targets = []
-const targetOne = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
+let target = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
     map: targetTextures.targetColorTexture
 }))
-targetOne.position.set(0, 40, 480)
-scene.add(targetOne)
+target.position.set( 0 , 40 , 480)
+target.position.y=40
+target.position.z=480
+target.position.x = 0
+scene.add(target)
 
-const targetTwo = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
-    map: targetTextures.targetColorTexture
-}))
-targetTwo.position.set(30, 40, 480)
-scene.add(targetTwo)
-
-const targetThree = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
-    map: targetTextures.targetColorTexture
-}))
-targetThree.position.set(-30, 40, 480)
-scene.add(targetThree)
-targets.push(targetOne, targetTwo, targetThree)
 
 let linePoints = []
 let lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
@@ -408,7 +407,7 @@ let oldElapsedTime = 0
 raycaster.far = 5
 raycaster.near = 2
 let rayOrigin
-let rayDirection = new THREE.Vector3(0, 0, -0.0001)
+let rayDirection = new THREE.Vector3(0, 0, -0.000000001)
 rayDirection.normalize()
 let currentInstersect = null
 
@@ -417,6 +416,8 @@ let currentInstersect = null
 */
 const objectsToUpdate = []
 const createCannonBall = () => {
+    numberOfBalls--
+    numberOfBallsScreen.innerHTML = numberOfBalls
     let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(4, 32, 32), new THREE.MeshStandardMaterial({
         map: cannonTextures.cannonColorTexture,
         aoMap: cannonTextures.cannonAmbientOcclusionTexture,
@@ -436,6 +437,17 @@ const createCannonBall = () => {
     })
 }
 
+const updateTarget = (obj) => {
+    setTimeout(() => {
+        target= new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
+            map: targetTextures.targetColorTexture
+        }))
+        target.position.copy(obj.position.clone().add(new THREE.Vector3((Math.random() - 0.4) *40, (Math.random() - 0.5)*7 , 0)))
+        scene.remove(obj)
+        scene.add(target)
+    } , 1000)
+}
+
 let previousAngle = 1.5707963268 * 2;
 function rotateAboutPoint(obj, point, axis, theta) {
     obj.rotateOnAxis(axis, -previousAngle);
@@ -452,6 +464,7 @@ function rotateAboutPoint(obj, point, axis, theta) {
 }
 rotateAboutPoint(flag, flagBase.position, new THREE.Vector3(0, 1, 0), paramters.windAngle)
 
+let shotedTaregt = []
 
 //const control = new OrbitControls(camera, canvas)
 const tick = () => {
@@ -464,14 +477,27 @@ const tick = () => {
         object.cannonBall.position.copy(object.physicsBall.position)
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
-        const intersects = raycaster.intersectObjects(targets)
-        if (intersects.length) {
+        const intersects = raycaster.intersectObject(target)
+        for (let intersect of intersects) {
+            if (!shotedTaregt.includes(intersect.object)) {
+            shotedTaregt.push(intersect.object)
+            score++;
+            scoreScreen.innerHTML = score
+            intersect.object.material.color.set("#ff0000") 
+            updateTarget(intersect.object)
+        }
+        }
+      /*   if (intersects.length) {
             currentInstersect = intersects[0]
+            score++;
+            scoreScreen.innerHTML = score
             currentInstersect.object.material.color.set("#ff0000")
+            shotedTaregt.push(intersects[0])
+            
         }
         else {
             currentInstersect = null
-        }
+        } */
     }
     updateCannon()
     /* control.update() */

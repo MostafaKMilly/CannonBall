@@ -33,4 +33,31 @@ html,body {
     transform-origin : top right;
     transition: transform 1.5s ease-in-out;
 }
+.score {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin-top: 25px;
+    font-size: 24px;
+    font-family: 'monospace', Tahoma, Geneva, Verdana, sans-serif;
+    
+}
+.score h4 {
+    color: black !important;
+}
+
+.cannonBalls {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: 60px;
+    margin-left: 70px ;
+    font-size: 21px;
+    font-family: 'monospace', Tahoma, Geneva, Verdana, sans-serif;
+    color: black;
+}
 
