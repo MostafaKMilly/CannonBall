@@ -42,7 +42,11 @@ let score = 0
 */
 const paramters = {
     windSpeed: 10,
-    windAngle: Math.PI/2
+    windAngle: Math.PI/2,
+    speed:20,
+    angular_speedX:50,
+    angular_speedY:10,
+    angular_speedZ:-10
 }
 
 /*
@@ -69,6 +73,7 @@ const numberOfBallsScreen = document.querySelector('.cannonBallsNumber');
 numberOfBallsScreen.innerHTML  = numberOfBalls
 
 const scoreScreen = document.querySelector('.ScoreNumber')
+const tragetScore = document.querySelector('.targetNumbers')
 scoreScreen.innerHTML = score
 /*
     Configure Scene
@@ -96,6 +101,12 @@ gui.add(paramters, 'windAngle', 0, 6.2831853072, 0.2).name("Wind Angle").onChang
     world.wind_angle = paramters.windAngle
     rotateAboutPoint(flag, flagBase.position, new THREE.Vector3(0, 1, 0), paramters.windAngle)
 })
+// add physics ball parameters
+gui.add(paramters, 'speed', 10, 1000, 10).name("Ball speed")
+gui.add(paramters,'angular_speedX',-50,50,5).name("Angular speed X")
+gui.add(paramters,'angular_speedY',-50,50,5).name("Angular speed Y")
+gui.add(paramters,'angular_speedZ',-50,50,5).name("Angular speed Z")
+
 /*
     Textures
 */
@@ -441,8 +452,9 @@ const createCannonBall = () => {
     cannonBall.castShadow = true
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
-    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 20, angleXY, angleXZ
-        , radius, count, 1, DRAG_COEFF, vector.create(50,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
+    let angular_speed = vector.create(paramters.angular_speedX,paramters.angular_speedY,paramters.angular_speedZ)
+    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), paramters.speed, angleXY, angleXZ
+        , radius, count, 1, DRAG_COEFF, angular_speed, RESISTANSE_COEFF, FRICTION_COEFF)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,
@@ -496,6 +508,7 @@ const tick = () => {
             shotedTaregt.push(intersect.object)
             score++;
             scoreScreen.innerHTML = score
+            tragetScore.innerHTML = score
             intersect.object.material.color.set("#ff0000") 
             updateTarget(intersect.object)
         }

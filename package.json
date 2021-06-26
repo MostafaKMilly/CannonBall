@@ -27,5 +27,19 @@
   "devDependencies": {
     "eslint": "^7.26.0",
     "style-loader": "^2.0.0"
-  }
+  },
+  "name": "src-canonball-1",
+  "description": "Download [Node.js](https://nodejs.org/en/download/).\r Run this followed commands:",
+  "version": "1.0.0",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/dolor993/src-canonball.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/dolor993/src-canonball/issues"
+  },
+  "homepage": "https://gitlab.com/dolor993/src-canonball#readme"
 }
