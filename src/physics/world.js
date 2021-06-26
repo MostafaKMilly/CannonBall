@@ -12,7 +12,7 @@ class World {
     }
     update(deltaTime) {
         for (const object of this.objects) {
-            object.update(deltaTime, this.gravity, this.height, this.tempereture,this.wind_speed, this.wind_angle)
+            object.update(deltaTime, this.gravity, this.height, this.tempereture, this.wind_speed, this.wind_angle)
         }
     }
 }

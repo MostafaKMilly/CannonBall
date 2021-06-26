@@ -183,7 +183,4 @@ gltfLoader.load('models/target/scene.gltf', (gltfModel) => {
 
 })
  */
-
-return {houses}
-
 }

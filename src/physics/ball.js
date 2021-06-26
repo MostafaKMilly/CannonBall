@@ -13,11 +13,11 @@ class Ball {
         this.velocity.inits(speed, angleXY, angleXZ)
         this.type = type
         this.drag_coeff = drag_coeff
-        this.angular_velocity=angular_velocity
+        this.angular_velocity = angular_velocity
         this.resistanse_coeff = resistanse_coeff
         this.friction_coeff = friction_coeff
-       this.raduis = raduis / 100; //m  -----------------------------------
-    //  this.raduis=0.1
+        this.raduis = raduis / 100; //m  -----------------------------------
+        //  this.raduis=0.1
         this.rho = 0;
         if (this.type == 1) {
             this.rho = 500; // kg/m^3  wood
@@ -54,7 +54,7 @@ class Ball {
         let wind_velo = this.calc_wind_velo(wind_speed, wind_angle)
         //   let dragForce = vector.create(0, 0, 0); 
         let dragForce = this.drag_force(air_rho);
-            //   let windForce = vector.create(0, 0, 0);
+        //   let windForce = vector.create(0, 0, 0);
         let windForce = this.wind_force(air_rho, wind_velo);
 
 
@@ -65,13 +65,13 @@ class Ball {
         let totalForce = vector.create(dragForce.getX() + windForce.getX() + liftForce.getX(),
             gravityForce.getY() + dragForce.getY() + liftForce.getY(),
             dragForce.getZ() + windForce.getZ() + liftForce.getZ());
-        let acc = vector.create(totalForce.getX()  / this.mass, totalForce.getY() / this.mass, totalForce.getZ()  / this.mass)
+        let acc = vector.create(totalForce.getX() / this.mass, totalForce.getY() / this.mass, totalForce.getZ() / this.mass)
 
-        this.velocity.addTo(acc ,time);
+        this.velocity.addTo(acc, time);
 
-        this.position.x += (this.velocity.getX() * time*10)
-        this.position.y += (this.velocity.getY() * time*10)
-        this.position.z -= (this.velocity.getZ() * time*10)
+        this.position.x += (this.velocity.getX() * time * 10)
+        this.position.y += (this.velocity.getY() * time * 10)
+        this.position.z -= (this.velocity.getZ() * time * 10)
         //another porjectile 
         this.bouncing(this.resistanse_coeff, this.friction_coeff)
         //	this.position.addTo(this.velocity,time);
@@ -100,7 +100,7 @@ class Ball {
         if (this.position.y < 3.0) {
             this.position.y = 3.0
             this.velocity._y *= -res_coeff
-          
+
         }
     }
     gravity_force(gravity) {
@@ -127,7 +127,7 @@ class Ball {
         let velocitySquere = wind_velo.squere()
         let normalize = wind_velo.normalize()
 
-        let wind= vector.create(
+        let wind = vector.create(
             velocitySquere.getX() * 1 / 2 * rho * this.area * normalize.getX(),
             0,
             velocitySquere.getZ() * 1 / 2 * rho * this.area * normalize.getZ()
@@ -137,24 +137,24 @@ class Ball {
 
     lift_force(rho, wind_velo) {
         // let lift_coeff = 0.5
-        let lift_coeff =this.raduis*this.angular_velocity.getLength()/this.velocity.getLength() // cl=r*ω/v
+        let lift_coeff = this.raduis * this.angular_velocity.getLength() / this.velocity.getLength() // cl=r*ω/v
         // let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
         //     this.velocity.getY() - wind_velo.getY(),
         //     this.velocity.getZ() - wind_velo.getZ())
         // let velocitySquere = velo.squere()
-      //  let velo_normalize = velo.normalize()
+        //  let velo_normalize = velo.normalize()
 
-       // let angu_normalize = this.angular_velocity.normalize()
+        // let angu_normalize = this.angular_velocity.normalize()
 
-         let velocitySquere = this.velocity.getLength()*this.velocity.getLength()
+        let velocitySquere = this.velocity.getLength() * this.velocity.getLength()
         let rotate = vector.create(1, 0, 0)
         let cross = rotate.cross(this.velocity)
-       // let cross =rotate.cross(velo_normalize)
-       // console.log(cross)
-       
+        // let cross =rotate.cross(velo_normalize)
+        // console.log(cross)
+
         let lift = vector.create(
             velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getX(),
-           - velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getY(),
+            - velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getY(),
             velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getZ()
         )
         return lift
