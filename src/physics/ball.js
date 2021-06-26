@@ -1,5 +1,6 @@
 import vector from './vector'
 import * as THREE from 'three'
+import { Matrix4, Vector3 } from 'three'
 
 class Ball {
 
@@ -13,7 +14,6 @@ class Ball {
         this.velocity.inits(speed, angleXY, angleXZ)
         this.type = type
         this.drag_coeff = drag_coeff
-        this.angular_velocity = angular_velocity
         this.resistanse_coeff = resistanse_coeff
         this.friction_coeff = friction_coeff
         this.raduis = raduis / 100; //m  -----------------------------------
@@ -43,6 +43,12 @@ class Ball {
         this.area = Math.PI * Math.pow(this.raduis, 2);
         console.log(this.area, " ", Math.pow(this.raduis, 3))
         console.log("mass " + this.mass, " rho " + this.rho + " raduis " + this.raduis)
+
+        //rotation
+        this.rotateAngle=0
+        this.rotateAxes=vector.create(0,1,0)
+         this.angular_velocity = angular_velocity
+         this.angular_acc=vector.create(-3,-3,-3)
     }
 
 
@@ -75,34 +81,11 @@ class Ball {
         //another porjectile 
         this.bouncing(this.resistanse_coeff, this.friction_coeff)
         //	this.position.addTo(this.velocity,time);
+
+        // this.angular_velocity.addTo(this.angular_acc,time)
     }
 
-    bouncing(resistanse_coeff, friction_coeff) {
-        let res_coeff = 0
-        let fric_coeff = 0
-
-        if (this.type == 0) { //user values
-            res_coeff = resistanse_coeff
-            fric_coeff = friction_coeff
-        }
-        else if (this.type == 1) { //wood
-            res_coeff = 0.4
-            fric_coeff = 0.603
-        }
-        else if (this.type == 2) { //steel
-            res_coeff = 0.597
-            fric_coeff = 0.7
-        }
-        else if (this.type == 3) { //rubber
-            res_coeff = 0.828
-            fric_coeff = 0.35
-        }
-        if (this.position.y < 3.0) {
-            this.position.y = 3.0
-            this.velocity._y *= -res_coeff
-
-        }
-    }
+  
     gravity_force(gravity) {
 
         return vector.create(0, - gravity * this.mass, 0)
@@ -175,6 +158,44 @@ class Ball {
     calc_wind_velo(wind_speed, wind_angle) {
         return vector.create(Number(Math.cos(wind_angle).toFixed(2)) * wind_speed, 0, Math.sin(wind_angle) * wind_speed)
 
+    }
+    rotate(time){
+        let matrix =new Matrix4()
+        let axes =   new Vector3(this.rotateAxes.getX(),this.rotateAxes.getY(),this.rotateAxes.getZ())
+       
+        console.log(this.angular_velocity)
+        this.rotateAngle += this.angular_velocity.getLength()
+        
+        matrix.makeRotationAxis(axes , this.rotateAngle)
+      // console.log(matrix.elements)
+       return matrix
+
+    }
+    bouncing(resistanse_coeff, friction_coeff) {
+        let res_coeff = 0
+        let fric_coeff = 0
+
+        if (this.type == 0) { //user values
+            res_coeff = resistanse_coeff
+            fric_coeff = friction_coeff
+        }
+        else if (this.type == 1) { //wood
+            res_coeff = 0.4
+            fric_coeff = 0.603
+        }
+        else if (this.type == 2) { //steel
+            res_coeff = 0.597
+            fric_coeff = 0.7
+        }
+        else if (this.type == 3) { //rubber
+            res_coeff = 0.828
+            fric_coeff = 0.35
+        }
+        if (this.position.y < 3.0) {
+            this.position.y = 3.0
+            this.velocity._y *= -res_coeff
+
+        }
     }
 
 }
