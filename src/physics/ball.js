@@ -54,8 +54,8 @@ class Ball {
         let wind_velo = this.calc_wind_velo(wind_speed, wind_angle)
         //   let dragForce = vector.create(0, 0, 0); 
         let dragForce = this.drag_force(air_rho);
-              let windForce = vector.create(0, 0, 0);
-        //let windForce = this.wind_force(air_rho, wind_velo);
+            //   let windForce = vector.create(0, 0, 0);
+        let windForce = this.wind_force(air_rho, wind_velo);
 
 
         // let liftForce = vector.create(0, 0, 0);
