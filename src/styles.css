@@ -109,6 +109,10 @@ html,body {
     margin-left: 100px;
 }
 
+.gameFinshedLayout {
+    position: absolute;
+}
+
 @media screen and (max-width: 425px) {
     .targetImage {
         margin-left: -68px;
@@ -120,5 +124,57 @@ html,body {
         margin-bottom: 127px;
         color: white;
         font-size: 15px;
+    }
+}
+
+.gameFinshedLayout {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    
+    margin: 0 auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    background-color: wheat;
+    height: 400px;
+    width: -webkit-fill-available;
+    background-color: #161616ed;
+    padding: 28px;
+}
+
+.playAgain {
+    margin: 0 auto;
+    background-color: #C84B31;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 79px;
+    cursor: pointer;
+}
+
+.status {
+    font-size: 85px;
+    font-family: 'Tahoma', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: monospace;
+    margin-top: 57px;
+}
+.footer {
+    margin-top: 44px;
+    color: white;
+    font-family: monospace;
+}
+
+
+@media screen and (max-width: 425px) {
+    .gameFinshedLayout {
+        height: 100vh;
     }
 }

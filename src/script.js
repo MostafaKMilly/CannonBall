@@ -8,7 +8,7 @@ import { loadBaseTextures } from './config/BaseTexures'
 import Ball from './physics/ball'
 import { loadModels } from './config/Models'
 import { loadTargetTextues } from './config/targetTexure'
-import { CylinderBufferGeometry, MeshBasicMaterial, MeshNormalMaterial, PlaneBufferGeometry } from 'three'
+import { CylinderBufferGeometry, PlaneBufferGeometry } from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import gsap from 'gsap'
 import World from './physics/world'
@@ -16,11 +16,21 @@ import { loadFlagBaseTextures } from './config/flagBaseTextures'
 import flagVertexShader from './shaders/FlagSheders/vertex.glsl'
 import flagFragmentShader from './shaders/FlagSheders/fragment.glsl'
 import { loadFlagTexture } from './config/FlagTexture'
+import { loadBallTextures } from './config/BallTextures'
 import vector from './physics/vector'
+
 /*
     Variables
 */
 const gui = new dat.GUI()
+const worldfolder = gui.addFolder('world')
+const ballFolder = gui.addFolder('ball')
+const coefficientsFolder = ballFolder.addFolder('coefficients')
+coefficientsFolder.open()
+coefficientsFolder.hide()
+worldfolder.open()
+ballFolder.open()
+let isClicked = false
 const size = {
     width: window.innerWidth,
     height: window.innerHeight
@@ -28,21 +38,63 @@ const size = {
 const mouse = new THREE.Vector2();
 const cannonDirection = new THREE.Vector3()
 const scene = new THREE.Scene()
-const GRAVITY = 9.8, DRAG_COEFF = 0.47
+const GRAVITY = 9.8
 const HEIGHT = 0, TEMPERETURE = 15; // celsius
-const WIND_SPEED = 10, WIND_ANGLE = -Math.PI / 2
-const LIFT_COEFF = 0.1
-const RESISTANSE_COEFF = 0.1, FRICTION_COEFF = 0.1
+const WIND_SPEED = 10, WIND_ANGLE = Math.PI / 2
 const SHOOT_DELAY = 1000
 let lastShotingTime = 0
 let numberOfBalls = 20
+let numberOfTargets = 7
 let score = 0
+let isObjectLoaded
+
+
 /*
     Paramters
 */
 const paramters = {
     windSpeed: 10,
-    windAngle: Math.PI/2
+    windAngle: Math.PI / 2,
+    angular_speedX: 5,
+    angular_speedY: 1,
+    angular_speedZ: -1,
+    radius: 4,
+    gravity: 9.8,
+    dragCoeff: 0.47,
+    height: 0,
+    tempereture: 15,
+    resistanseCoeff: 0.1,
+    frictionCoeff: 0.1,
+    mass: 1,
+    speed: 20,
+    type: 0,
+    types: {
+        default() {
+            paramters.type = 0
+            paramters.ballTextures = ballTextures[0]
+            coefficientsFolder.show()
+            massController.domElement.hidden = false
+        },
+        wood() {
+            paramters.type = 1
+            paramters.ballTextures = ballTextures[1]
+            coefficientsFolder.hide()
+            massController.domElement.hidden = true
+
+        },
+        steal() {
+            paramters.type = 2
+            paramters.ballTextures = ballTextures[0]
+            coefficientsFolder.hide()
+            massController.domElement.hidden = true
+        },
+        rubber() {
+            paramters.type = 3
+            paramters.ballTextures = ballTextures[2]
+            coefficientsFolder.hide()
+            massController.domElement.hidden = true
+        },
+    }
 }
 
 /*
@@ -54,22 +106,30 @@ const loadingManger = new THREE.LoadingManager(() => {
         gsap.to(overlay.material.uniforms.uAlpha, { duration: 3, value: 0 })
         loadingBar.classList.add('ended')
         loadingBar.style.transform = ''
+        document.querySelector('.screenInfo').classList.remove('hide')
     })
+    isObjectLoaded = true
 }, (itemUrl, itemsLoaded, itemsTotal) => {
     loadingBar.style.transform = 'scaleX(' + itemsLoaded / itemsTotal + ')'
 })
 const gltfLoader = new GLTFLoader(loadingManger)
 const textureLoader = new THREE.TextureLoader(loadingManger)
 
-
 /*
     Game Screen
 */
-const numberOfBallsScreen = document.querySelector('.cannonBallsNumber');
-numberOfBallsScreen.innerHTML  = numberOfBalls
+const numberofBallsWidget = document.querySelector('.cannonBallsNumber');
+numberofBallsWidget.innerHTML = numberOfBalls
 
-const scoreScreen = document.querySelector('.ScoreNumber')
-scoreScreen.innerHTML = score
+const scoreWidget = document.querySelector('.ScoreNumber')
+scoreWidget.innerHTML = score
+
+const targetWidget = document.querySelector('.targetNumbers')
+targetWidget.innerHTML = numberOfTargets
+
+const gameFinshed = document.querySelector('.gameFinshedLayout')
+
+const playAgain = document.querySelector('.playAgain')
 /*
     Configure Scene
 */
@@ -87,15 +147,48 @@ const texture = textureLoader.load(
 /*
     Configure Pysics World
 */
-const world = new World(GRAVITY, HEIGHT, TEMPERETURE, paramters.windSpeed, paramters.windAngle)
+const world = new World(GRAVITY, HEIGHT, TEMPERETURE, WIND_SPEED, WIND_ANGLE)
 
-gui.add(paramters, 'windSpeed', 0, 100, 0.01).name("Wind Speed").onChange(() => {
+worldfolder.add(paramters, 'gravity', 0, 9.8, 1).name('gravity').onChange(() => {
+    world.gravity = paramters.gravity
+})
+
+worldfolder.add(paramters, 'windSpeed', 0, 100, 0.01).name("Wind Speed").onChange(() => {
     world.wind_speed = paramters.windSpeed
 })
-gui.add(paramters, 'windAngle', 0, 6.2831853072, 0.2).name("Wind Angle").onChange(() => {
+worldfolder.add(paramters, 'windAngle', 0, 6.2831853072, 0.2).name("Wind Angle").onChange(() => {
     world.wind_angle = paramters.windAngle
     rotateAboutPoint(flag, flagBase.position, new THREE.Vector3(0, 1, 0), paramters.windAngle)
 })
+worldfolder.add(paramters, 'height', 0, 1, 0.01).name("Height").onChange(() => {
+    world.height = paramters.height
+})
+
+worldfolder.add(paramters, 'tempereture', 15, 30, 0.01).name("Tempereture").onChange(() => {
+    world.tempereture = paramters.tempereture
+})
+
+
+/* 
+    Tweak gui values
+*/
+
+ballFolder.add(paramters, 'radius', 1, 6, 1).name('ball radius')
+let massController = ballFolder.add(paramters, 'mass', 1, 10, 0.1).name('ball mass')
+ballFolder.add(paramters, 'speed', 10, 1000, 10).name('ball speed')
+ballFolder.add(paramters, 'angular_speedX', -50, 50, 5).name("Angular speed X")
+ballFolder.add(paramters, 'angular_speedY', -50, 50, 5).name("Angular speed Y")
+ballFolder.add(paramters, 'angular_speedZ', -50, 50, 5).name("Angular speed Z")
+const subFolder = ballFolder.addFolder('types')
+subFolder.add(paramters.types, 'default')
+subFolder.add(paramters.types, 'wood')
+subFolder.add(paramters.types, 'steal')
+subFolder.add(paramters.types, 'rubber')
+subFolder.open()
+
+coefficientsFolder.add(paramters, 'dragCoeff', 0, 1, 0.001).name('dragCoeff')
+coefficientsFolder.add(paramters, 'resistanseCoeff', 0, 1, 0.001).name('resistanseCoeff')
+coefficientsFolder.add(paramters, 'frictionCoeff', 0, 1, 0.001).name('frictionCoeff')
 /*
     Textures
 */
@@ -105,6 +198,10 @@ const baseTextures = loadBaseTextures(textureLoader)
 const targetTextures = loadTargetTextues(textureLoader)
 const flagBaseTexutes = loadFlagBaseTextures(textureLoader)
 const flagTextures = loadFlagTexture(textureLoader)
+const ballTextures = loadBallTextures(textureLoader)
+paramters.ballTextures = ballTextures
+paramters.types.default()
+
 /* 
     Models
 */
@@ -113,6 +210,9 @@ loadModels(scene, gltfLoader)
 /*
     Events
 */
+gui.domElement.addEventListener("mousedown", () => isClicked = true)
+gui.domElement.addEventListener("mouseleave", () => isClicked = false)
+window.addEventListener("mouseup", () => checkGame())
 window.addEventListener('dblclick', () => {
     const fullScreen = document.fullscreenElement || document.webkitFullscreenElement
     if (!fullScreen) {
@@ -152,16 +252,24 @@ window.addEventListener('mousemove', (event) => {
 window.addEventListener('touchmove', (event) => {
     mouse.x = event.touches[0].clientX / size.width;
     mouse.y = event.touches[0].clientY / size.height;
-
 })
-window.addEventListener("mousedown", () => {
-    if (numberOfBalls && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
+window.addEventListener("click", () => {
+    if (!isClicked && numberOfBalls && numberOfTargets && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
+        isClicked = false
         createCannonBall()
         lastShotingTime = window.performance.now()
     }
 });
+playAgain.addEventListener("click", () => {
+    gameFinshed.classList.add('hide')
+    score = 0
+    numberOfBalls = 20
+    numberOfTargets = 7
+    targetWidget.innerHTML = numberOfTargets
+    scoreWidget.innerHTML = score
+})
 
-const camera = new THREE.PerspectiveCamera(45, size.width / size.height, 0.1, 2000)
+const camera = new THREE.PerspectiveCamera(45, size.width / size.height, 0.1, 1600)
 camera.position.set(0, 10, 740)
 scene.add(camera)
 
@@ -172,7 +280,7 @@ const ambientLight = new THREE.AmbientLight('white', 0.75)
 scene.add(ambientLight)
 
 const directionalLight = new THREE.DirectionalLight('white', 0.35)
-directionalLight.position.copy(new THREE.Vector3(40, 80, -30))
+directionalLight.position.copy(new THREE.Vector3(-84.5, 169.1, 696))
 scene.add(directionalLight)
 
 /*
@@ -180,31 +288,22 @@ scene.add(directionalLight)
 */
 const cannon = new THREE.Group()
 scene.add(cannon)
+const metalMaterial = new THREE.MeshStandardMaterial({
+    map: cannonTextures.cannonColorTexture,
+    aoMap: cannonTextures.cannonAmbientOcclusionTexture,
+    roughnessMap: cannonTextures.cannonRoughnessTexture,
+    normalMap: cannonTextures.cannonNormalTexture,
+    metalnessMap: cannonTextures.cannonMetalnessTexture
+})
 const barrel = new THREE.Mesh(
-    new THREE.CylinderBufferGeometry(5, 3, 20, 32, 1, true, Math.PI * 2),
-    new THREE.MeshStandardMaterial({
-        map: cannonTextures.cannonColorTexture,
-        aoMap: cannonTextures.cannonAmbientOcclusionTexture,
-        roughnessMap: cannonTextures.cannonRoughnessTexture,
-        normalMap: cannonTextures.cannonNormalTexture,
-        metalnessMap: cannonTextures.cannonMetalnessTexture
-    }))
+    new THREE.CylinderBufferGeometry(5, 3, 20, 32, 1, true, Math.PI * 2), metalMaterial)
 barrel.position.set(0, 10, 660)
 barrel.rotation.x = -Math.PI / 4 * 1.5
 barrel.material.roughness = 0.5
 barrel.material.side = THREE.DoubleSide
-
 cannon.add(barrel)
 
-const cannonCover = new THREE.Mesh(new THREE.SphereBufferGeometry(3, 32, 32,),
-    new THREE.MeshStandardMaterial({
-        map: cannonTextures.cannonColorTexture,
-        aoMap: cannonTextures.cannonAmbientOcclusionTexture,
-        roughnessMap: cannonTextures.cannonRoughnessTexture,
-        normalMap: cannonTextures.cannonNormalTexture,
-        metalnessMap: cannonTextures.cannonMetalnessTexture
-    }))
-
+const cannonCover = new THREE.Mesh(new THREE.SphereBufferGeometry(3, 32, 32,), metalMaterial)
 cannonCover.position.y = -10
 cannonCover.material.roughness = 0.5
 barrel.add(cannonCover)
@@ -221,7 +320,6 @@ const floor = new THREE.Mesh(
         roughnessMap: grassTextures.grassRoughnessTexture,
     }))
 floor.material.roughness = 0.5
-
 floor.geometry.setAttribute('uv2', new THREE.Float32BufferAttribute(floor.geometry.attributes.uv.array, 2))
 floor.rotation.x = -Math.PI / 2
 scene.add(floor)
@@ -274,13 +372,11 @@ scene.add(flag)
 let target = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
     map: targetTextures.targetColorTexture
 }))
-target.position.set( 0 , 40 , 480)
-target.position.y=40
-target.position.z=480
-target.position.x = 0
+target.position.set(0, 40, 480)
+target.position.set(0, 40, 480)
 scene.add(target)
 
-
+/*
 let linePoints = []
 let lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
 let backLine
@@ -291,30 +387,8 @@ let backLineDraw = function (x, y, z) {
     backLine = new THREE.Line(lineGeometry, lineMaterial);
     scene.add(backLine);
 }
-
-/*
-    Identicator
 */
-const points = []
-points.push(new THREE.Vector3(- 10, 0, 0));
-points.push(new THREE.Vector3(0, 10, 0));
-points.push(new THREE.Vector3(10, 0, 0));
 
-const Identicator = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2, 1, 1),
-    new THREE.ShaderMaterial({
-        vertexShader: `
-    void main() {
-        gl_Position = modelViewMatrix * vec4(position , 1.0);
-    }
-    `,
-        fragmentShader: `
-    void main () {
-        gl_FragColor = vec4(1.0, 0.0 , 0.0 , 0.0);
-    }
-    `
-    })
-)
-scene.add(Identicator)
 /*
     Overlay
 */
@@ -345,7 +419,11 @@ scene.add(overlay)
     Reycaster
 */
 const raycaster = new THREE.Raycaster()
-
+raycaster.far = 5
+raycaster.near = 2
+let rayOrigin
+let rayDirection = new THREE.Vector3(0, 0, -0.000000001)
+rayDirection.normalize()
 
 /*
     Renderer
@@ -361,12 +439,12 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap
 renderer.physicallyCorrectLights = true
 
 /*
-ٍShadows
+    Shadows
 */
 renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFShadowMap
 directionalLight.shadow.camera.near = 1
-directionalLight.shadow.camera.far = 1000
+directionalLight.shadow.camera.far = 450
 directionalLight.shadow.camera.right = 200
 directionalLight.shadow.camera.left = -200
 directionalLight.shadow.camera.top = 200
@@ -375,11 +453,13 @@ directionalLight.shadow.mapSize.x = 1024;
 directionalLight.shadow.mapSize.y = 1024;
 
 directionalLight.castShadow = true
-
 floor.receiveShadow = true
 barrel.castShadow = true
 base.receiveShadow = true
 
+/*
+    Utils
+*/
 const lerp = (a, b, t) => a + (b - a) * t
 
 let angleXY, angleXZ
@@ -389,60 +469,35 @@ const updateCannon = () => {
     barrel.rotation.x = -lerp(Math.PI / 8, Math.PI / 2, mouse.y);
     cannonDirection.set(0, 1, 0);
     cannonDirection.applyQuaternion(barrel.quaternion);
-    var offset = cannonDirection.clone().multiplyScalar(-40);
+    let offset = cannonDirection.clone().multiplyScalar(-40);
     camera.position.copy(barrel.position.clone().add(offset));
     camera.position.y = barrel.position.y + 10;
     camera.lookAt(barrel.position.clone().add(cannonDirection.clone().multiplyScalar(30)));
-    var vector = new THREE.Vector3()
+    let vector = new THREE.Vector3()
     camera.getWorldDirection(vector)
     angleXY = Math.asin(cannonDirection.clone().y)
     angleXZ = Math.acos(cannonDirection.clone().x)
     /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
      */
-
-
 }
 
-
-
-const clock = new THREE.Clock()
-let oldElapsedTime = 0
-
-raycaster.far = 5
-raycaster.near = 2
-let rayOrigin
-let rayDirection = new THREE.Vector3(0, 0, -0.000000001)
-rayDirection.normalize()
-let currentInstersect = null
-let radius = 5
-
-/*
-    Utils
-*/
-let count = 0
 const objectsToUpdate = []
 const createCannonBall = () => {
-   count++
-   // radius++
-
-    if(count >3)
-    count=1
-
-    console.log("ciubt + " +  count)
     numberOfBalls--
-    numberOfBallsScreen.innerHTML = numberOfBalls
-    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(radius, 32, 32), new THREE.MeshStandardMaterial({
-        map: cannonTextures.cannonColorTexture,
-        aoMap: cannonTextures.cannonAmbientOcclusionTexture,
-        roughnessMap: cannonTextures.cannonRoughnessTexture,
-        normalMap: cannonTextures.cannonNormalTexture,
-        metalnessMap: cannonTextures.cannonMetalnessTexture
+    numberofBallsWidget.innerHTML = numberOfBalls
+    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius, 32, 32), new THREE.MeshStandardMaterial({
+        map: paramters.ballTextures.color,
+        aoMap: paramters.ballTextures.ao,
+        roughnessMap: paramters.ballTextures.roughness,
+        normalMap: paramters.ballTextures.normal,
+        metalnessMap: paramters.ballTextures.metalness,
     }));
     cannonBall.castShadow = true
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
-    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), 20, angleXY, angleXZ
-        , radius, count, 1, DRAG_COEFF, vector.create(50,10,-10), RESISTANSE_COEFF, FRICTION_COEFF)
+    let angular_speed = vector.create(paramters.angular_speedX, paramters.angular_speedY, paramters.angular_speedZ)
+    let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), paramters.speed, angleXY, angleXZ
+        , paramters.radius, paramters.type, paramters.mass, paramters.dragCoeff, angular_speed, paramters.resistanseCoeff, paramters.frictionCoeff)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,
@@ -452,13 +507,41 @@ const createCannonBall = () => {
 
 const updateTarget = (obj) => {
     setTimeout(() => {
-        target= new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
+        target = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
             map: targetTextures.targetColorTexture
         }))
-        target.position.copy(obj.position.clone().add(new THREE.Vector3((Math.random() - 0.4) *40, (Math.random() - 0.5)*7 , 0)))
+        target.position.copy(new THREE.Vector3(0, 40, 480).add(new THREE.Vector3((Math.random() - 0.4) * 40, (Math.random() - 0.5) * 7, 0)))
         scene.remove(obj)
+        obj.material.dispose()
+        obj.geometry.dispose()
         scene.add(target)
-    } , 1000)
+    }, 1000)
+}
+
+const upadteWidgets = () => {
+    score++;
+    scoreWidget.innerHTML = score
+    numberOfTargets--;
+    targetWidget.innerHTML = numberOfTargets
+    if (numberOfTargets == 0) {
+        gameFinshed.classList.remove('hide')
+        document.querySelector('.status').innerHTML = "You Won"
+    }
+}
+
+const checkGame = () => {
+    if (numberOfTargets === 0) {
+        gameFinshed.classList.remove('hide')
+        let status = document.querySelector('.status')
+        status.innerHTML = "You Won"
+        status.style.color = '#346751'
+    }
+    else if (numberOfBalls <= numberOfTargets && numberOfTargets != 1) {
+        gameFinshed.classList.remove('hide')
+        let status = document.querySelector('.status')
+        status.innerHTML = "You Lose"
+        status.style.color = '#CE1212'
+    }
 }
 
 let previousAngle = 1.5707963268 * 2;
@@ -478,8 +561,10 @@ function rotateAboutPoint(obj, point, axis, theta) {
 rotateAboutPoint(flag, flagBase.position, new THREE.Vector3(0, 1, 0), paramters.windAngle)
 
 let shotedTaregt = []
-
+const clock = new THREE.Clock()
+let oldElapsedTime = 0
 //const control = new OrbitControls(camera, canvas)
+
 const tick = () => {
     const elapsedTime = clock.getElapsedTime()
     flagMaterial.uniforms.uTime.value = elapsedTime * paramters.windSpeed
@@ -488,32 +573,24 @@ const tick = () => {
     oldElapsedTime = elapsedTime
     for (const object of objectsToUpdate) {
         object.cannonBall.position.copy(object.physicsBall.position)
+        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotate(delteTime))
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
         const intersects = raycaster.intersectObject(target)
         for (let intersect of intersects) {
             if (!shotedTaregt.includes(intersect.object)) {
-            shotedTaregt.push(intersect.object)
-            score++;
-            scoreScreen.innerHTML = score
-            intersect.object.material.color.set("#ff0000") 
-            updateTarget(intersect.object)
+                shotedTaregt.push(intersect.object)
+                intersect.object.material.color.set("#ff0000")
+                updateTarget(intersect.object)
+                upadteWidgets()
+                checkGame()
+            }
         }
-        }
-      /*   if (intersects.length) {
-            currentInstersect = intersects[0]
-            score++;
-            scoreScreen.innerHTML = score
-            currentInstersect.object.material.color.set("#ff0000")
-            shotedTaregt.push(intersects[0])
-            
-        }
-        else {
-            currentInstersect = null
-        } */
     }
-    updateCannon()
-    /* control.update() */
+    if (isObjectLoaded) {
+        updateCannon()
+    }
+    //control.update()
     renderer.render(scene, camera)
     requestAnimationFrame(tick)
 }

@@ -45,6 +45,7 @@ class Ball {
         console.log(this.area, " ", Math.pow(this.raduis, 3))
         console.log("mass " + this.mass, " rho " + this.rho + " raduis " + this.raduis)
 
+
         //rotation
         this.rotateAngle=0
         this.rotateAxes=vector.create(0,1,0)

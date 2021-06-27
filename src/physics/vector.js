@@ -90,15 +90,15 @@ var vector = {
 	// 	return vector.create(this._x - v2.getX(), this._y - v2.getY());
 	// },
 
-	multiply_divide: function(vec ,val) {
-		return vector.create(this._x * val /vec.getX() ||0, this._y * val/vec.getY() || 0, this._z * val/ vec.getZ() ||0);
+	multiply: function (val) {
+		return vector.create(this._x * val , this._y * val , this._z * val );
 	},
 
-	 divide: function(vec) {
-		return vector.create(this._x /vec.getX(), this._y /vec.getY(), this._z/vec.getZ());
-	 },
+	divide: function (vec) {
+		return vector.create(this._x / vec.getX(), this._y / vec.getY(), this._z / vec.getZ());
+	},
 
-	addTo: function (v2 , time) {
+	addTo: function (v2, time) {
 
 		this._y += v2.getY() * time;
 		this._z += v2.getZ() * time;
@@ -129,7 +129,7 @@ var vector = {
 	},
 
 	normalize: function () {
-		return vector.create(this._x / this.getLength() ||0, this._y / this.getLength() ||0 , this._z / this.getLength() ||0)
+		return vector.create(this._x / this.getLength() || 0, this._y / this.getLength() || 0, this._z / this.getLength() || 0)
 	},
 
 	cross: function (vec) {
