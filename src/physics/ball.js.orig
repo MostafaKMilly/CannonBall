@@ -14,6 +14,7 @@ class Ball {
         this.velocity.inits(speed, angleXY, angleXZ)
         this.type = type
         this.drag_coeff = drag_coeff
+        this.angular_velocity=angular_velocity
         this.resistanse_coeff = resistanse_coeff
         this.friction_coeff = friction_coeff
         this.raduis = raduis / 100; //m  -----------------------------------
@@ -43,6 +44,7 @@ class Ball {
         this.area = Math.PI * Math.pow(this.raduis, 2);
         console.log(this.area, " ", Math.pow(this.raduis, 3))
         console.log("mass " + this.mass, " rho " + this.rho + " raduis " + this.raduis)
+
 
         //rotation
         this.rotateAngle=0
@@ -81,8 +83,6 @@ class Ball {
         //another porjectile 
         this.bouncing(this.resistanse_coeff, this.friction_coeff)
         //	this.position.addTo(this.velocity,time);
-
-
         this.calc_angular_acc(gravity,air_rho,wind_velo)
         //  this.angular_velocity.setX(this.angular_velocity.getX()*this.angular_acc.x* time)
         //  this.angular_velocity.setY(this.angular_velocity.getY()*this.angular_acc.y* time)
@@ -124,12 +124,7 @@ class Ball {
 
     lift_force(rho, wind_velo) {
         // let lift_coeff = 0.5
-<<<<<<< HEAD
-        let lift_coeff =this.raduis*this.angular_velocity.getLength()/this.velocity.getLength() // cl=r*ω/v
-        console.log("Lift Coeff " + lift_coeff)
-=======
         let lift_coeff = this.raduis * this.angular_velocity.getLength() / this.velocity.getLength() // cl=r*ω/v
->>>>>>> 93760c66b9f075ce2ba3692baf50f3ccd0eec5b4
         // let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
         //     this.velocity.getY() - wind_velo.getY(),
         //     this.velocity.getZ() - wind_velo.getZ())
