@@ -573,7 +573,7 @@ const tick = () => {
     oldElapsedTime = elapsedTime
     for (const object of objectsToUpdate) {
         object.cannonBall.position.copy(object.physicsBall.position)
-        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotate())
+        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotate(delteTime))
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
         const intersects = raycaster.intersectObject(target)

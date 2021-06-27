@@ -1,6 +1,6 @@
 import vector from './vector'
 import * as THREE from 'three'
-import { Matrix4, Vector3 } from 'three'
+import { Matrix3, Matrix4, Vector3 } from 'three'
 
 class Ball {
 
@@ -48,7 +48,7 @@ class Ball {
         this.rotateAngle=0
         this.rotateAxes=vector.create(0,1,0)
          this.angular_velocity = angular_velocity
-         this.angular_acc=vector.create(-3,-3,-3)
+         this.angular_acc=new Vector3()
     }
 
 
@@ -82,7 +82,11 @@ class Ball {
         this.bouncing(this.resistanse_coeff, this.friction_coeff)
         //	this.position.addTo(this.velocity,time);
 
-        // this.angular_velocity.addTo(this.angular_acc,time)
+
+        this.calc_angular_acc(gravity,air_rho,wind_velo)
+        //  this.angular_velocity.setX(this.angular_velocity.getX()*this.angular_acc.x* time)
+        //  this.angular_velocity.setY(this.angular_velocity.getY()*this.angular_acc.y* time)
+        //  this.angular_velocity.setZ(this.angular_velocity.getZ()*this.angular_acc.z* time)
     }
 
   
@@ -159,12 +163,13 @@ class Ball {
         return vector.create(Number(Math.cos(wind_angle).toFixed(2)) * wind_speed, 0, Math.sin(wind_angle) * wind_speed)
 
     }
+
     rotate(time){
         let matrix =new Matrix4()
         let axes =   new Vector3(this.rotateAxes.getX(),this.rotateAxes.getY(),this.rotateAxes.getZ())
        
         console.log(this.angular_velocity)
-        this.rotateAngle += this.angular_velocity.getLength()
+        this.rotateAngle += this.angular_velocity.getLength() // it should be multiplied by time but it is not working
         
         matrix.makeRotationAxis(axes , this.rotateAngle)
       // console.log(matrix.elements)
@@ -197,7 +202,32 @@ class Ball {
 
         }
     }
+   
+    calc_angular_acc(gravity,air_rho,wind_velo){
+        let I = 2/5 * this.mass * Math.pow(this.raduis,2)
+        let interia_ball = new Matrix3()
+        interia_ball.set(I,0,0,
+                         0,I,0,
+                         0,0,I)
 
+        let rotateMatrix=new Matrix3() 
+        rotateMatrix.setFromMatrix4(this.rotate())
+        let inverseRotate=new Matrix3()
+        inverseRotate.setFromMatrix4(this.rotate()).invert()
+        let temp=rotateMatrix.multiply(interia_ball)
+        let interia= temp.multiply(inverseRotate)
+
+         let friction_torque = this.mass* gravity* this.friction_coeff *this.raduis
+         let wind_torque = this.wind_force(air_rho,wind_velo).multiply(this.raduis)           
+         let torque=new Vector3(friction_torque+wind_torque.getX(),
+         friction_torque+wind_torque.getY(),
+         friction_torque+wind_torque.getZ())
+      //  console.log(torque)
+         this.angular_acc=torque.applyMatrix3(interia)
+     //    console.log(this.angular_acc)
+
+
+    }
 }
 export default Ball
 
