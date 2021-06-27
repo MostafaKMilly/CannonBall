@@ -47,8 +47,10 @@ class Ball {
 
         //rotation
         this.rotateAngle=0
-        this.rotateAxes=vector.create(0,1,0)
-         this.angular_velocity = angular_velocity
+        // this.rotateAxes=vector.create(0,1,0)
+        //hhhh
+        this.rotateAxes= angular_velocity.normalize()
+        this.angular_velocity = angular_velocity
          this.angular_acc=new Vector3()
     }
 
@@ -133,7 +135,8 @@ class Ball {
         // let angu_normalize = this.angular_velocity.normalize()
 
         let velocitySquere = this.velocity.getLength() * this.velocity.getLength()
-        let rotate = vector.create(1, 0, 0)
+        //todo:: hhhh check that
+        let rotate = this.rotateAxes
         let cross = rotate.cross(this.velocity)
         // let cross =rotate.cross(velo_normalize)
         // console.log(cross)
