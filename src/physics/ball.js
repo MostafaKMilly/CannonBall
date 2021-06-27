@@ -223,7 +223,7 @@ class Ball {
          friction_torque+wind_torque.getY(),
          friction_torque+wind_torque.getZ())
       //  console.log(torque)
-         this.angular_acc=torque.applyMatrix3(interia)
+         this.angular_acc=torque.applyMatrix3(interia.invert())
      //    console.log(this.angular_acc)
 
 
