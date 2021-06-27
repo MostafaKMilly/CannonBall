@@ -138,6 +138,7 @@ class Ball {
     lift_force(rho, wind_velo) {
         // let lift_coeff = 0.5
         let lift_coeff =this.raduis*this.angular_velocity.getLength()/this.velocity.getLength() // cl=r*ω/v
+        console.log("Lift Coeff " + lift_coeff)
         // let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
         //     this.velocity.getY() - wind_velo.getY(),
         //     this.velocity.getZ() - wind_velo.getZ())
