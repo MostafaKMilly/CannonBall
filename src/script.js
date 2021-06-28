@@ -55,9 +55,9 @@ let isObjectLoaded
 const paramters = {
     windSpeed: 10,
     windAngle: Math.PI / 2,
-    angular_speedX: 5,
-    angular_speedY: 1,
-    angular_speedZ: -1,
+    angular_speedX: 0,
+    angular_speedY: 10,
+    angular_speedZ: 0,
     radius: 4,
     gravity: 9.8,
     dragCoeff: 0.47,
@@ -573,7 +573,8 @@ const tick = () => {
     oldElapsedTime = elapsedTime
     for (const object of objectsToUpdate) {
         object.cannonBall.position.copy(object.physicsBall.position)
-        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotate(delteTime))
+        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotate())
+        // console.log("aaa " +  delteTime)
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
         const intersects = raycaster.intersectObject(target)
@@ -594,5 +595,4 @@ const tick = () => {
     renderer.render(scene, camera)
     requestAnimationFrame(tick)
 }
-
 tick()

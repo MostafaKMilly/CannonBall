@@ -168,7 +168,7 @@ class Ball {
         let matrix =new Matrix4()
         let axes =   new Vector3(this.rotateAxes.getX(),this.rotateAxes.getY(),this.rotateAxes.getZ())
        
-        console.log(this.angular_velocity)
+    //    console.log(this.angular_velocity)
         this.rotateAngle += this.angular_velocity.getLength() // it should be multiplied by time but it is not working
         
         matrix.makeRotationAxis(axes , this.rotateAngle)
