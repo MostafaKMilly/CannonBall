@@ -92,9 +92,9 @@ class Ball {
         this.calc_angular_acc(gravity, air_rho, wind_velo)
         this.rotateAngle += this.angular_velocity.getLength() * time
         let x = 1
-        this.angular_velocity.setX(this.angular_velocity.getX() * this.angular_acc.x * time * x)
-        this.angular_velocity.setY(this.angular_velocity.getY() * this.angular_acc.y * time * x)
-        this.angular_velocity.setZ(this.angular_velocity.getZ() * this.angular_acc.z * time * x)
+        this.angular_velocity.setX(this.angular_velocity.getX() + this.angular_acc.x * time )
+        this.angular_velocity.setY(this.angular_velocity.getY() + this.angular_acc.y * time )
+        this.angular_velocity.setZ(this.angular_velocity.getZ() + this.angular_acc.z * time )
         //console.log(this.angular_acc)
     }
 
