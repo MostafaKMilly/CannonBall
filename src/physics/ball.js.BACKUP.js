@@ -49,7 +49,6 @@ class Ball {
         //this.mass=0.035
         this.area = Math.PI * Math.pow(this.raduis, 2);
         console.log(this.area, " ", Math.pow(this.raduis, 3))
-        console.log("mass " + this.mass, " rho " + this.rho + " raduis " + this.raduis)
 
         //rotation
         this.rotateAngle = 0
@@ -92,6 +91,13 @@ class Ball {
         //	this.position.addTo(this.velocity,time);
         this.calc_angular_acc(gravity, air_rho, wind_velo)
         this.rotateAngle += this.angular_velocity.getLength() * time
+<<<<<<< HEAD
+        let x = 1
+        this.angular_velocity.setX(this.angular_velocity.getX() + this.angular_acc.x * time )
+        this.angular_velocity.setY(this.angular_velocity.getY() + this.angular_acc.y * time )
+        this.angular_velocity.setZ(this.angular_velocity.getZ() + this.angular_acc.z * time )
+        //console.log(this.angular_acc)
+=======
         let x = 0
         
         this.angular_velocity.setX(this.angular_velocity.getX() + Number(this.angular_acc.x).toFixed(6) * time )
@@ -102,6 +108,7 @@ class Ball {
         console.log("this is vel")
         console.log(this.angular_velocity)
 
+>>>>>>> aeb5552e025e716b00fc10862010d7812ed084f3
     }
 
 
@@ -225,7 +232,11 @@ class Ball {
             friction_torque + wind_torque.getY(),
             friction_torque + wind_torque.getZ())*/
         //  console.log(torque)
+<<<<<<< HEAD
         console.log(torque_drag.getX())
+=======
+        //console.log(torque_drag)
+>>>>>>> aeb5552e025e716b00fc10862010d7812ed084f3
         let torque = new Vector3(friction_torque + torque_drag.getX(),
             friction_torque + torque_drag.getY(),
             friction_torque + torque_drag.getZ())
@@ -251,7 +262,7 @@ class Ball {
         return torque_drag
     }
     torque_bouncing(gravity) {
-        return this.mass * gravity * this.friction_coeff * this.raduis
+        return -this.mass * gravity * this.friction_coeff * this.raduis
     }
 }
 export default Ball
