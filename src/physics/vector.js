@@ -52,9 +52,10 @@ var vector = {
 
 	inits: function (length, angleXY, angleXZ) {
 		this._x = Math.cos(angleXY) * Number((Math.cos(angleXZ)).toFixed(7)) * length;
-		console.log("init: + " + this._x + " " + Math.cos(angleXY) + " " + angleXZ + " " + length)
 		this._y = Math.sin(angleXY) * length;
 		this._z = Math.cos(angleXY) * Math.sin(angleXZ) * length;
+
+		
 	},
 
 	getAngleXY: function () {
@@ -130,6 +131,14 @@ var vector = {
 
 	normalize: function () {
 		return vector.create(this._x / this.getLength() || 0, this._y / this.getLength() || 0, this._z / this.getLength() || 0)
+	},
+	getAxesFrom: function(vec){
+
+		this._x = vec._x/vec._x | 0
+		this._y = vec._y/vec._y | 0
+		this._z = vec._z/vec._z| 0
+		
+
 	},
 
 	cross: function (vec) {

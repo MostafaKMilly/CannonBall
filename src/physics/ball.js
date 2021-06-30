@@ -49,7 +49,6 @@ class Ball {
         //this.mass=0.035
         this.area = Math.PI * Math.pow(this.raduis, 2);
         console.log(this.area, " ", Math.pow(this.raduis, 3))
-        console.log("mass " + this.mass, " rho " + this.rho + " raduis " + this.raduis)
 
         //rotation
         this.rotateAngle = 0
@@ -220,7 +219,7 @@ class Ball {
             friction_torque + wind_torque.getY(),
             friction_torque + wind_torque.getZ())*/
         //  console.log(torque)
-        console.log(torque_drag)
+        console.log(torque_drag.getX())
         let torque = new Vector3(friction_torque + torque_drag.getX(),
             friction_torque + torque_drag.getY(),
             friction_torque + torque_drag.getZ())
@@ -231,8 +230,18 @@ class Ball {
 
 
     torque_drag(air_rho) {
-        let torque_drag = this.drag_force(air_rho)
-        torque_drag.multiplyBy(this.raduis)
+        // let torque_drag = this.drag_force(air_rho)
+        // torque_drag.multiplyBy(this.raduis)
+        let angular_vilocity_axes = vector.create(0,0,0)
+        angular_vilocity_axes.getAxesFrom(this.angular_velocity)
+        
+        console.log("aaaaa" + angular_vilocity_axes.getX() + " "  + angular_vilocity_axes.getY() + " " + angular_vilocity_axes.getZ())
+        let torque_drag =  this.velocity.cross(angular_vilocity_axes);
+        
+        torque_drag.setLength(-8*Math.PI * this.raduis * this.raduis * this.raduis *18.27 * this.angular_velocity.getLength())
+
+        console.log("len = " + torque_drag.getLength())
+        console.log("x = " + torque_drag.getX() + "  Y " + torque_drag.getY() + "  Z " + torque_drag.getZ())
         return torque_drag
     }
     torque_bouncing(gravity) {
