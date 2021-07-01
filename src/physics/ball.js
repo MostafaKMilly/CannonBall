@@ -17,7 +17,7 @@ class Ball {
         this.angular_velocity = angular_velocity
         this.resistanse_coeff = resistanse_coeff
         this.friction_coeff = friction_coeff
-        this.raduis = raduis / 100; //m  -----------------------------------
+        this.raduis = raduis; //m  -----------------------------------
         //  this.raduis=0.1
         this.rho = 0;
         if (this.type == 1) {
@@ -53,9 +53,8 @@ class Ball {
 
         //rotation
         this.rotateAngle = 0
-        // this.rotateAxes=vector.create(0,1,0)
-        //hhhh
-        this.rotateAxes = angular_velocity.normalize()
+        this.rotateAxes=vector.create(angular_velocity.getX()>0?1:0,angular_velocity.getY(),angular_velocity.getZ())
+
         this.angular_velocity = angular_velocity
         this.angular_acc = new Vector3()
     }
@@ -74,7 +73,7 @@ class Ball {
 
 
         // let liftForce = vector.create(0, 0, 0);
-        let liftForce = this.lift_force(air_rho, wind_velo);
+        let liftForce = this.lift_force(air_rho);
         //  console.log("liftForce")
         // console.log(liftForce)
         let totalForce = vector.create(dragForce.getX() + windForce.getX() + liftForce.getX(),
@@ -91,9 +90,9 @@ class Ball {
         this.bouncing()
         //	this.position.addTo(this.velocity,time);
         this.calc_angular_acc(gravity, air_rho, wind_velo)
+        // this.calc_angular_acc2(liftForce,time)
         this.rotateAngle += this.angular_velocity.getLength() * time
-        let x = 0
-        
+
         this.angular_velocity.setX(this.angular_velocity.getX() + Number(this.angular_acc.x).toFixed(6) * time )
         this.angular_velocity.setY(this.angular_velocity.getY() + Number(this.angular_acc.y).toFixed(6) * time )
         this.angular_velocity.setZ(this.angular_velocity.getZ() + Number(this.angular_acc.z).toFixed(6) * time )
@@ -135,9 +134,12 @@ class Ball {
         return wind
     }
 
-    lift_force(rho, wind_velo) {
+    lift_force(rho) {
         // let lift_coeff = 0.5
-        let lift_coeff = this.raduis * this.angular_velocity.getLength() / this.velocity.getLength() // cl=r*ω/v
+        console.log("ggg " +  this.angular_velocity.getLength())
+        // let lift_coeff = this.raduis * this.angular_velocity.getLength() / this.velocity.getLength() // cl=r*ω/v
+        let lift_coeff =-0.05+Math.sqrt(0.0025 +0.36 *this.raduis * this.angular_velocity.getLength() / this.velocity.getLength()) // cl=r*ω/v
+        
         // let velo = vector.create(this.velocity.getX() - wind_velo.getX(),
         //     this.velocity.getY() - wind_velo.getY(),
         //     this.velocity.getZ() - wind_velo.getZ())
@@ -149,8 +151,8 @@ class Ball {
         let velocitySquere = this.velocity.getLength() * this.velocity.getLength()
         //todo:: hhhh check that
 
-        let rotate = this.angular_velocity
-        let cross = rotate.cross(this.velocity)
+        
+        let cross = this.rotateAxes.cross(this.velocity)
         // let cross =rotate.cross(velo_normalize)
         // console.log(cross)
 
@@ -181,13 +183,9 @@ class Ball {
 
     rotate() {
         let matrix = new Matrix4()
-        let axes = new Vector3(this.rotateAxes.getX(), this.rotateAxes.getY(), this.rotateAxes.getZ())
-
-
-        //this.rotateAngle += this.angular_velocity.getLength() // it should be multiplied by time but it is not working
-
+        let axes = new Vector3(this.rotateAxes.getX() >0?1:0, this.rotateAxes.getY()>0?1:0, this.rotateAxes.getZ()>0?1:0)
         matrix.makeRotationAxis(axes, this.rotateAngle)
-        // console.log(matrix.elements)
+        
         return matrix
 
     }
@@ -198,20 +196,44 @@ class Ball {
         }
     }
 
+    calc_angular_acc2(lift_force,time){
+        let i = (2/5) *  this.mass * Math.pow(this.raduis, 2)
+        let v = vector.create(-lift_force.getX(),-lift_force.getY(),-lift_force.getZ())
+        // let newXz = lift_force.getAngleXZ()+(Math.PI/2)
+        // let newXy = lift_force.getAngleXY() +(Math.PI/2)
+        let len1 =  time * this.angular_velocity.getLength()
+        let len2 = ( -8 * this.raduis * this.raduis  *this.raduis * Math.PI *18.27 )/ i
+        let len = len1 * len2
+       // v.inits(len,newXy ,newXz)
+       v.setLength(len)
+        this.angular_acc = new THREE.Vector3(v.getX(),v.getY(),v.getZ())
+    }
+    viscousTorque(lift_force){
+        let i = (2/5) *  this.mass * Math.pow(this.raduis, 2)
+        let v = vector.create(-this.angular_velocity.getX(),-this.angular_velocity.getY(),-this.angular_velocity.getZ())
+        let len = (this.angular_velocity.getLength()*  -8 * this.raduis * this.raduis  *this.raduis * Math.PI *0.0000185 )/ i
+        v.setLength(len)
+        return vector.create(v.getX(),v.getY(),v.getZ())
+    }
+
     calc_angular_acc(gravity, air_rho, wind_velo) {
         let I = 2 / 5 * this.mass * Math.pow(this.raduis, 2)
         let interia_ball = new Matrix3()//ibody
         interia_ball.set(I, 0, 0,
             0, I, 0,
-            0, 0, I)
-
+            0, 0, I).invert()
         let rotateMatrix = new Matrix3()//R 
         rotateMatrix.setFromMatrix4(this.rotate())
         let transposeRotate = new Matrix3()
 
         transposeRotate.setFromMatrix4(this.rotate()).transpose()
-        let temp = rotateMatrix.multiply(interia_ball)//rotate * ibody
-        let interia = temp.multiply(transposeRotate)
+        // let temp = rotateMatrix.multiply(interia_ball)//rotate * ibody
+        // let interia = temp.multiply(transposeRotate)
+
+
+        let temp = new Matrix3()
+        temp.multiplyMatrices(rotateMatrix,new Matrix3().multiplyMatrices(interia_ball,transposeRotate))//rotate * ibody
+        let interia = temp
 
         let friction_torque
         if (this.position.y <= 3) {
@@ -219,17 +241,17 @@ class Ball {
         }
         else friction_torque = 0
 
-        let torque_drag = this.torque_drag(air_rho)
+        let torque_drag = this.viscousTorque(this.lift_force(air_rho))
         let wind_torque = this.wind_force(air_rho, wind_velo).multiply(this.raduis)
         /*let torque = new Vector3(friction_torque + wind_torque.getX(),
             friction_torque + wind_torque.getY(),
             friction_torque + wind_torque.getZ())*/
         //  console.log(torque)
-        console.log(torque_drag.getX())
-        let torque = new Vector3(friction_torque + torque_drag.getX(),
-            friction_torque + torque_drag.getY(),
-            friction_torque + torque_drag.getZ())
-        this.angular_acc = torque.applyMatrix3(interia.invert())
+        friction_torque = 0
+        let torque = new Vector3(friction_torque - torque_drag.getX(),
+            friction_torque - torque_drag.getY(),
+            friction_torque - torque_drag.getZ())
+        this.angular_acc = torque.applyMatrix3(interia)
         //    console.log(this.angular_acc)
 
     }

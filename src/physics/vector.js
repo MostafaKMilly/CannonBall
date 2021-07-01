@@ -73,10 +73,10 @@ var vector = {
 	setLength: function (length) {
 		var angleXY = this.getAngleXY();
 		var angleXZ = this.getAngleXZ();
-		var angelZY = this.getAngleZY()
-		this._x = Math.cos(angleXZ) * length;
-		this._y = Math.cos(angleXY) * length;
-		this._z = Math.cos(angelZY) * length;
+		this._x = Math.cos(angleXY) * Number((Math.cos(angleXZ)).toFixed(7)) * length;
+		this._y = Math.sin(angleXY) * length;
+		this._z = Math.cos(angleXY) * Math.sin(angleXZ) * length;
+
 	},
 
 	getLength: function () {
