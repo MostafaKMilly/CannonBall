@@ -129,7 +129,7 @@ var vector = {
 	},
 
 	squere: function () {
-		return vector.create(this._x * this._x, this._y * this._y, this._z * this._z);
+		return this.getLength()* this.getLength()
 	},
 
 	normalize: function () {

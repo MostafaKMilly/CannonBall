@@ -63,9 +63,9 @@ const paramters = {
     dragCoeff: 0.47,
     height: 0,
     tempereture: 15,
-    resistanseCoeff: 0.1,
-    frictionCoeff: 0.1,
-    mass: 1,
+    resistanseCoeff: 0.8,
+    frictionCoeff: 0.8,
+    mass: 1000,
     speed: 20,
     type: 0,
     types: {
@@ -149,7 +149,7 @@ const texture = textureLoader.load(
 */
 const world = new World(GRAVITY, HEIGHT, TEMPERETURE, WIND_SPEED, WIND_ANGLE)
 
-worldfolder.add(paramters, 'gravity', 0, 9.8, 1).name('gravity').onChange(() => {
+worldfolder.add(paramters, 'gravity', -10, 100, 0.1).name('gravity').onChange(() => {
     world.gravity = paramters.gravity
 })
 
@@ -160,11 +160,11 @@ worldfolder.add(paramters, 'windAngle', 0, 6.2831853072, 0.2).name("Wind Angle")
     world.wind_angle = paramters.windAngle
     rotateAboutPoint(flag, flagBase.position, new THREE.Vector3(0, 1, 0), paramters.windAngle)
 })
-worldfolder.add(paramters, 'height', 0, 1, 0.01).name("Height").onChange(() => {
+worldfolder.add(paramters, 'height', -100,1000, 10).name("Height").onChange(() => {
     world.height = paramters.height
 })
 
-worldfolder.add(paramters, 'tempereture', 15, 30, 0.01).name("Tempereture").onChange(() => {
+worldfolder.add(paramters, 'tempereture',-100, 100, 1).name("Tempereture").onChange(() => {
     world.tempereture = paramters.tempereture
 })
 
@@ -173,9 +173,9 @@ worldfolder.add(paramters, 'tempereture', 15, 30, 0.01).name("Tempereture").onCh
     Tweak gui values
 */
 
-ballFolder.add(paramters, 'radius', 0, 5, 0.1).name('ball radius')
-let massController = ballFolder.add(paramters, 'mass', 1, 10, 0.1).name('ball mass')
-ballFolder.add(paramters, 'speed', 10, 1000, 10).name('ball speed')
+ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
+let massController = ballFolder.add(paramters, 'mass', 100, 5000, 0.1).name('ball mass')
+ballFolder.add(paramters, 'speed', 1, 100, 1).name('ball speed')
 ballFolder.add(paramters, 'angular_speedX', -6.28, 6.28, 0.1).name("Angular speed X")
 ballFolder.add(paramters, 'angular_speedY', -6.28, 6.28, 0.1).name("Angular speed Y")
 ballFolder.add(paramters, 'angular_speedZ', -6.28, 6.28, 0.1).name("Angular speed Z")
