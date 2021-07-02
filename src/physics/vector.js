@@ -59,23 +59,26 @@ var vector = {
 	},
 
 	getAngleXY: function () {
-		return Math.atan(this._y, this._x);
+		return Math.atan(this._y/ this._x)||0;
 	},
 
 	getAngleXZ: function () {
-		return Math.atan(this._z, this._x);
+		return Math.atan(this._z/ this._x)|| 0;
 	},
 
 	getAngleZY: function () {
-		return Math.atan(this._y, this._z);
+		return Math.atan(this._y/ this._z )|| 0;
 	},
 
 	setLength: function (length) {
-		var angleXY = this.getAngleXY();
-		var angleXZ = this.getAngleXZ();
-		this._x = Math.cos(angleXY) * Number((Math.cos(angleXZ)).toFixed(7)) * length;
-		this._y = Math.sin(angleXY) * length;
-		this._z = Math.cos(angleXY) * Math.sin(angleXZ) * length;
+		var angleXY = Number(this.getAngleXY().toFixed(1));
+		var angleXZ = Number(this.getAngleXZ().toFixed(1));
+		let l1 = Number((Math.cos(angleXY)).toFixed(2))
+		let l2 = Number((Math.cos(angleXZ)).toFixed(7))
+	
+		this._x =  l1*  l2* length;
+		this._y = Number((Math.sin(angleXY)).toFixed(2)) * length;
+		this._z = Number((Math.cos(angleXY)).toFixed(2)) * Number((Math.sin(angleXZ)).toFixed(2)) * length;
 
 	},
 

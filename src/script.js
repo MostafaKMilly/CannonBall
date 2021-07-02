@@ -56,9 +56,9 @@ const paramters = {
     windSpeed: 10,
     windAngle: Math.PI / 2,
     angular_speedX: 0,
-    angular_speedY: 10,
+    angular_speedY: 1,
     angular_speedZ: 0,
-    radius: 4,
+    radius: 0.5,
     gravity: 9.8,
     dragCoeff: 0.47,
     height: 0,
@@ -173,12 +173,12 @@ worldfolder.add(paramters, 'tempereture', 15, 30, 0.01).name("Tempereture").onCh
     Tweak gui values
 */
 
-ballFolder.add(paramters, 'radius', 1, 6, 1).name('ball radius')
+ballFolder.add(paramters, 'radius', 0, 5, 0.1).name('ball radius')
 let massController = ballFolder.add(paramters, 'mass', 1, 10, 0.1).name('ball mass')
 ballFolder.add(paramters, 'speed', 10, 1000, 10).name('ball speed')
-ballFolder.add(paramters, 'angular_speedX', -50, 50, 0.5).name("Angular speed X")
-ballFolder.add(paramters, 'angular_speedY', -50, 50, 0.5).name("Angular speed Y")
-ballFolder.add(paramters, 'angular_speedZ', -50, 50, 0.5).name("Angular speed Z")
+ballFolder.add(paramters, 'angular_speedX', -6.28, 6.28, 0.1).name("Angular speed X")
+ballFolder.add(paramters, 'angular_speedY', -6.28, 6.28, 0.1).name("Angular speed Y")
+ballFolder.add(paramters, 'angular_speedZ', -6.28, 6.28, 0.1).name("Angular speed Z")
 const subFolder = ballFolder.addFolder('types')
 subFolder.add(paramters.types, 'default')
 subFolder.add(paramters.types, 'wood')
@@ -485,7 +485,7 @@ const objectsToUpdate = []
 const createCannonBall = () => {
     numberOfBalls--
     numberofBallsWidget.innerHTML = numberOfBalls
-    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius, 32, 32), new THREE.MeshStandardMaterial({
+    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius*5, 32, 32), new THREE.MeshStandardMaterial({
         map: paramters.ballTextures.color,
         aoMap: paramters.ballTextures.ao,
         roughnessMap: paramters.ballTextures.roughness,
