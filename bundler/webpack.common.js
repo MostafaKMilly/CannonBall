@@ -70,6 +70,20 @@ module.exports = {
                     }
                 ]
             },
+            //sounds
+            {
+                test: /\.(mp3|wav)$/,
+                use:
+                [
+                    {
+                        loader: 'file-loader',
+                        options:
+                        {
+                            outputPath: 'assets/sounds/'
+                        },
+                    }
+                ]
+            },
 
             // Fonts
             {

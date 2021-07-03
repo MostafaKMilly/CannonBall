@@ -23,6 +23,7 @@ import vector from './physics/vector'
     Variables
 */
 const gui = new dat.GUI()
+gui.close()
 const worldfolder = gui.addFolder('world')
 const ballFolder = gui.addFolder('ball')
 const coefficientsFolder = ballFolder.addFolder('coefficients')
@@ -41,13 +42,13 @@ const scene = new THREE.Scene()
 const GRAVITY = 9.8
 const HEIGHT = 0, TEMPERETURE = 15; // celsius
 const WIND_SPEED = 10, WIND_ANGLE = Math.PI / 2
-const SHOOT_DELAY = 1000
+const SHOOT_DELAY = 2000
 let lastShotingTime = 0
 let numberOfBalls = 20
 let numberOfTargets = 7
 let score = 0
 let isObjectLoaded
-
+let intersectObjects = []
 
 /*
     Paramters
@@ -80,7 +81,6 @@ const paramters = {
             paramters.ballTextures = ballTextures[1]
             coefficientsFolder.hide()
             massController.domElement.hidden = true
-
         },
         steal() {
             paramters.type = 2
@@ -114,6 +114,11 @@ const loadingManger = new THREE.LoadingManager(() => {
 })
 const gltfLoader = new GLTFLoader(loadingManger)
 const textureLoader = new THREE.TextureLoader(loadingManger)
+const audioLoader = new THREE.AudioLoader(loadingManger)
+audioLoader.load('sounds/cannonShootingSound.mp3' , (audioBuffer) => {
+    shootingSoundEffect.setBuffer(audioBuffer)
+})
+
 
 /*
     Game Screen
@@ -172,7 +177,6 @@ worldfolder.add(paramters, 'tempereture',-100, 100, 1).name("Tempereture").onCha
 /* 
     Tweak gui values
 */
-
 ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
 let massController = ballFolder.add(paramters, 'mass', 100, 5000, 0.1).name('ball mass')
 ballFolder.add(paramters, 'speed', 1, 100, 1).name('ball speed')
@@ -205,7 +209,7 @@ paramters.types.default()
 /* 
     Models
 */
-loadModels(scene, gltfLoader)
+loadModels(scene, gltfLoader,intersectObjects)
 
 /*
     Events
@@ -231,8 +235,14 @@ window.addEventListener('dblclick', () => {
     }
 })
 window.addEventListener("keydown", (event) => {
-    if (event.code === "Space") {
-        createCannonBall()
+    if (!objectsToUpdate.length) {
+        return
+    }
+    if (event.code === "Digit2") {
+        isCameraChasing = true
+    }
+    else if (event.code === "Digit1") {
+        isCameraChasing = false
     }
 })
 
@@ -240,7 +250,9 @@ window.addEventListener('resize', () => {
     size.width = window.innerWidth;
     size.height = window.innerHeight
     camera.aspect = size.width / size.height
+    chasingCamera.aspect = size.width / size.height
     camera.updateProjectionMatrix()
+    chasingCamera.updateProjectionMatrix()
     renderer.setSize(size.width, size.height)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
@@ -256,7 +268,14 @@ window.addEventListener('touchmove', (event) => {
 window.addEventListener("click", () => {
     if (!isClicked && numberOfBalls && numberOfTargets && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
         isClicked = false
+        shootingSoundEffect.play()
         createCannonBall()
+        let zPosition = cannon.position.z
+        gsap.to(cannon.position, { duration: 1.5, delay : 0.2,z:cannon.position.z + 15 })
+        gsap.delayedCall(0.2, () => {
+            gsap.to(cannon.position, { duration: 1.5, delay : 0.2,z:zPosition })
+        })
+        
         lastShotingTime = window.performance.now()
     }
 });
@@ -269,9 +288,26 @@ playAgain.addEventListener("click", () => {
     scoreWidget.innerHTML = score
 })
 
+
+/* 
+    Cameras
+*/
+let isCameraChasing = false
 const camera = new THREE.PerspectiveCamera(45, size.width / size.height, 0.1, 1600)
 camera.position.set(0, 10, 740)
 scene.add(camera)
+const chasingCamera = new THREE.PerspectiveCamera(45, size.width / size.height, 0.1, 1600)
+chasingCamera.position.set(0, 10, 0)
+scene.add(chasingCamera)
+
+/*
+    Sounds
+*/
+const audioListener = new THREE.AudioListener();
+camera.add(audioListener)
+chasingCamera.add(audioListener)
+const shootingSoundEffect = new THREE.Audio(audioListener)
+scene.add(shootingSoundEffect)
 
 /*
     Lights
@@ -375,7 +411,7 @@ let target = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStand
 target.position.set(0, 40, 480)
 target.position.set(0, 40, 480)
 scene.add(target)
-
+intersectObjects.push(target)
 /*
 let linePoints = []
 let lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
@@ -419,10 +455,10 @@ scene.add(overlay)
     Reycaster
 */
 const raycaster = new THREE.Raycaster()
-raycaster.far = 5
+raycaster.far = 20
 raycaster.near = 2
 let rayOrigin
-let rayDirection = new THREE.Vector3(0, 0, -0.000000001)
+let rayDirection = new THREE.Vector3(0, 0, -10)
 rayDirection.normalize()
 
 /*
@@ -481,8 +517,9 @@ const updateCannon = () => {
      */
 }
 
-const objectsToUpdate = []
+let objectsToUpdate = []
 const createCannonBall = () => {
+    removeBallsGreaterThanTwo()
     numberOfBalls--
     numberofBallsWidget.innerHTML = numberOfBalls
     let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius*5, 32, 32), new THREE.MeshStandardMaterial({
@@ -495,22 +532,37 @@ const createCannonBall = () => {
     cannonBall.castShadow = true
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
-    let angular_speed = vector.create(paramters.angular_speedX, paramters.angular_speedY, paramters.angular_speedZ)
+    const angular_speed = vector.create(paramters.angular_speedX, paramters.angular_speedY, paramters.angular_speedZ)
     let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), paramters.speed, angleXY, angleXZ
-        , paramters.radius, paramters.type, paramters.mass, paramters.dragCoeff, angular_speed, paramters.resistanseCoeff, paramters.frictionCoeff)
+    , paramters.radius, paramters.type, paramters.mass, paramters.dragCoeff, angular_speed, paramters.resistanseCoeff, paramters.frictionCoeff)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,
         physicsBall
     })
+    intersectObjects.push(cannonBall)
 }
 
+const removeBallsGreaterThanTwo = () => {
+    if (objectsToUpdate.length > 2) {
+        objectsToUpdate.forEach((e) => {
+            scene.remove(e.cannonBall)
+            e.cannonBall.material.dispose()
+            e.cannonBall.geometry.dispose()
+            intersectObjects = intersectObjects.filter((i) => i!==e.cannonBall)
+        })
+        objectsToUpdate = []
+    }
+}
 const updateTarget = (obj) => {
     setTimeout(() => {
         target = new THREE.Mesh(new THREE.CircleGeometry(8, 32), new THREE.MeshStandardMaterial({
             map: targetTextures.targetColorTexture
         }))
         target.position.copy(new THREE.Vector3(0, 40, 480).add(new THREE.Vector3((Math.random() - 0.4) * 40, (Math.random() - 0.5) * 7, 0)))
+        intersectObjects.push(target)
+        intersectObjects = intersectObjects.filter((e) => e != obj)
+        console.log(target)
         scene.remove(obj)
         obj.material.dispose()
         obj.geometry.dispose()
@@ -573,26 +625,37 @@ const tick = () => {
     oldElapsedTime = elapsedTime
     for (const object of objectsToUpdate) {
         object.cannonBall.position.copy(object.physicsBall.position)
-        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotate())
-        // console.log("aaa " +  delteTime)
+        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotationMatrix)
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
-        const intersects = raycaster.intersectObject(target)
+        const intersects = raycaster.intersectObjects(intersectObjects, true)
         for (let intersect of intersects) {
-            if (!shotedTaregt.includes(intersect.object)) {
+            if (!shotedTaregt.includes(intersect.object) && intersect.object.geometry.type === "CircleGeometry") {
                 shotedTaregt.push(intersect.object)
                 intersect.object.material.color.set("#ff0000")
                 updateTarget(intersect.object)
                 upadteWidgets()
                 checkGame()
             }
+            else if (intersect.object.geometry.type !== "CircleGeometry"){
+                object.physicsBall.fraction()
+            }
         }
     }
     if (isObjectLoaded) {
         updateCannon()
     }
-    //control.update()
-    renderer.render(scene, camera)
+    if (objectsToUpdate.slice(-1)[0]?.cannonBall) {
+        chasingCamera.position.copy(objectsToUpdate.slice(-1)[0]?.cannonBall.position.clone().add(new THREE.Vector3(0, 0, 50)))
+        chasingCamera.lookAt(objectsToUpdate.slice(-1)[0].cannonBall.position)
+    }
+    if (isCameraChasing) {
+        renderer.render(scene, chasingCamera)
+    }
+    else {
+        renderer.render(scene, camera)
+    }
     requestAnimationFrame(tick)
 }
+
 tick()
