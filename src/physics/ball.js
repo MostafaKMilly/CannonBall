@@ -209,7 +209,7 @@ class Ball {
     viscousTorque() {
         let i = (2 / 5) * this.mass * Math.pow(this.raduis, 2)
         let v = vector.create(-this.angular_velocity.getX(), -this.angular_velocity.getY(), -this.angular_velocity.getZ())
-        let len = (this.angular_velocity.getLength() * -8 * this.raduis * this.raduis * this.raduis * Math.PI * 0.0000185) / i
+        let len = (this.angular_velocity.getLength() * -8 * this.raduis * this.raduis * this.raduis * Math.PI * 0.185) / i
         v.setLength(len)
         console.log("viscousTorque " + v.getX() + " "  + v.getY() + " " + v.getZ())
         return vector.create(v.getX(), v.getY(), v.getZ())
