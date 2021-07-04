@@ -178,7 +178,7 @@ worldfolder.add(paramters, 'tempereture',-100, 100, 1).name("Tempereture").onCha
     Tweak gui values
 */
 ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
-let massController = ballFolder.add(paramters, 'mass', 1, 5000, 1).name('ball mass')
+let massController = ballFolder.add(paramters, 'mass', 100, 5000, 0.1).name('ball mass')
 ballFolder.add(paramters, 'speed', 1, 100, 1).name('ball speed')
 ballFolder.add(paramters, 'angular_speedX', -6.28, 6.28, 0.1).name("Angular speed X")
 ballFolder.add(paramters, 'angular_speedY', -6.28, 6.28, 0.1).name("Angular speed Y")
@@ -625,7 +625,7 @@ const tick = () => {
     oldElapsedTime = elapsedTime
     for (const object of objectsToUpdate) {
         object.cannonBall.position.copy(object.physicsBall.position)
-        object.cannonBall.rotation.setFromRotationMatrix(object.physicsBall.rotationMatrix)
+        object.cannonBall.quaternion.copy(object.physicsBall.quaternion)
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
         const intersects = raycaster.intersectObjects(intersectObjects, true)
