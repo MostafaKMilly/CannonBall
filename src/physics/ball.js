@@ -167,11 +167,29 @@ class Ball {
     }
 
     bouncing() {
-        if (this.position.y < 3.0) {
-            this.position.y = 3.0
+        let ground = 3.0
+        if(this.raduis>4.5)
+            ground= 21.0
+        else if(this.raduis>4)
+             ground= 19.0
+        else if(this.raduis>3.5)
+            ground= 17.0
+        else if(this.raduis>3)
+            ground= 14.0
+        else if(this.raduis>2.5)
+             ground= 12.0
+        else if(this.raduis>2)
+            ground= 9.0
+        else if(this.raduis>1.5)
+            ground= 7.0
+        else if(this.raduis>0.7)
+            ground= 5.0
+        if (this.position.y < ground ) {
+            this.position.y = ground
             this.velocity._y *= -this.resistanse_coeff
         }
     }
+
 
     fraction() {
         this.velocity._z = -this.velocity._z * 0.6
