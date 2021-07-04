@@ -206,6 +206,7 @@ class Ball {
         }
     }
 
+
     fraction() {
         this.velocity._z = -this.velocity._z * 0.6
         this.velocity._x = -this.velocity._x * 0.6
