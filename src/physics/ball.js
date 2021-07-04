@@ -94,7 +94,12 @@ class Ball {
         this.angular_acc = torque.applyMatrix3(interiaTensor)
 
         //Update Rotation Matrix And angular Velocity
-        let axes = new Vector3(this.rotateAxes.getX() > 0 ? 1 : 0, this.rotateAxes.getY() > 0 ? 1 : 0, this.rotateAxes.getZ() > 0 ? 1 : 0)
+        let axes = new Vector3(
+            this.rotateAxes.getX()/Math.abs(this.rotateAxes.getX()) || 0 ,
+            this.rotateAxes.getY()/Math.abs(this.rotateAxes.getY()) || 0,
+            this.rotateAxes.getZ()/Math.abs(this.rotateAxes.getZ()) || 0)
+        
+        
         this.rotationMatrix.makeRotationAxis(axes, this.rotateAngle)
         this.rotateAngle += this.angular_velocity.getLength() * time
         this.angular_velocity.setX(this.angular_velocity.getX() + Number(this.angular_acc.x).toFixed(7) * time)
@@ -138,7 +143,7 @@ class Ball {
 
         let velocitySquere = this.velocity.squere()
 
-        let cross = this.rotateAxes.cross(this.velocity.normalize())
+        let cross = this.rotateAxes.cross(this.velocity)
 
         let lift = vector.create(
             velocitySquere * 1 / 2 * lift_coeff * rho * this.area * cross.getX(),
