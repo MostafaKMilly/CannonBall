@@ -142,6 +142,7 @@ var vector = {
 		this._z = vec._z/vec._z| 0
 		
 
+		
 	},
 
 	cross: function (vec) {

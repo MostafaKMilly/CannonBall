@@ -1,6 +1,6 @@
 import vector from './vector'
 import * as THREE from 'three'
-import { Matrix3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 class Ball {
     constructor(position, speed, angleXY, angleXZ, raduis, type, mass, drag_coeff,
@@ -44,13 +44,14 @@ class Ball {
         this.rotateAngle = 0
         this.rotateAxes = vector.create(angular_velocity.getX() > 0 ? 1 : 0, angular_velocity.getY(), angular_velocity.getZ())
         this.angular_velocity = angular_velocity
-        this.angular_acc = new Vector3()
+        this.angular_acc = new THREE.Vector3()
         const I = 2 / 5 * this.mass * Math.pow(this.raduis, 2)
         this.IBody = new THREE.Matrix3().set(
             I, 0, 0,
             0, I, 0,
             0, 0, I).invert()
-        this.rotationMatrix = new THREE.Matrix4()
+        this.quaternion = new THREE.Quaternion()
+        this.rotationMatrix = new THREE.Matrix3()
     }
     update(time, gravity, height, tempereture, wind_speed, wind_angle) {
         //Constants Variables
@@ -76,37 +77,50 @@ class Ball {
         this.position.y += (this.velocity.getY() * time * 10)
         this.position.z -= (this.velocity.getZ() * time * 10)
 
-        
-        let auxRotateMatrix = new Matrix3().setFromMatrix4(this.rotationMatrix) 
-        
-        let interiaTensor = new THREE.Matrix3().multiply(auxRotateMatrix).multiply(this.IBody).multiply(auxRotateMatrix.invert())
-
-        let friction_torque = this.position.y <=3 ? this.frictionTorque(gravity) : 0
+        let interiaTensor = this.rotationMatrix.clone().multiply(this.IBody).multiply(this.rotationMatrix.clone().transpose())
 
         let viscousTorque = this.viscousTorque()
 
         //Total Torques
-        let torque = new Vector3(friction_torque - viscousTorque.getX(),
-            friction_torque - viscousTorque.getY(),
-            friction_torque - viscousTorque.getZ())
-        
+        let torque = new Vector3(viscousTorque.getX(),
+            viscousTorque.getY(),
+            viscousTorque.getZ())
+
         //Angular Movement
         this.angular_acc = torque.applyMatrix3(interiaTensor)
 
-        //Update Rotation Matrix And angular Velocity
-        let axes = new Vector3(
-            this.rotateAxes.getX()/Math.abs(this.rotateAxes.getX()) || 0 ,
-            this.rotateAxes.getY()/Math.abs(this.rotateAxes.getY()) || 0,
-            this.rotateAxes.getZ()/Math.abs(this.rotateAxes.getZ()) || 0)
-        
-        
-        this.rotationMatrix.makeRotationAxis(axes, this.rotateAngle)
-        this.rotateAngle += this.angular_velocity.getLength() * time
-        this.angular_velocity.setX(this.angular_velocity.getX() + Number(this.angular_acc.x).toFixed(7) * time)
-        this.angular_velocity.setY(this.angular_velocity.getY() + Number(this.angular_acc.y).toFixed(7) * time)
-        this.angular_velocity.setZ(this.angular_velocity.getZ() + Number(this.angular_acc.z).toFixed(7) * time)
+        //Update angular velocity, rotation Matrix, quaternion 
+        this.angular_velocity._x += this.angular_acc.x * time
+        this.angular_velocity._y += this.angular_acc.y * time
+        this.angular_velocity._z += this.angular_acc.z * time
+        this.updateQutatnion(this.angular_velocity, time)
+        this.updateRotationMatrix(this.quaternion.normalize())
 
         this.bouncing()
+    }
+
+    updateRotationMatrix(quaternion) {
+        const q = quaternion
+        this.rotationMatrix.set(
+            1 - 2 * Math.pow(q.y, 2) - 2 * Math.pow(q.z, 2),
+            2 * q.x * q.y - 2 * q.z * q.w,
+            2 * q.x * q.z + 2 * q.y * q.w,
+            2 * q.x * q.y + 2 * q.z * q.w,
+            1 - 2 * Math.pow(q.x, 2) - 2 * Math.pow(q.z, 2),
+            2 * q.y * q.z - 2 * q.x * q.w,
+            2 * q.x * q.z - 2 * q.y * q.w,
+            2 * q.y * q.z + 2 * q.x * q.w,
+            1 - 2 * Math.pow(q.x, 2) - 2 * Math.pow(q.y, 2)
+        )
+    }
+
+    updateQutatnion(vector, time) {
+        const quaternionTemp = new THREE.Quaternion(vector._x * time, vector._y * time, vector._z * time, 0)
+        quaternionTemp.multiply(this.quaternion)
+        this.quaternion.x += quaternionTemp.x * 0.5
+        this.quaternion.y += quaternionTemp.y * 0.5
+        this.quaternion.z += quaternionTemp.z * 0.5
+        this.quaternion.w += quaternionTemp.w * 0.5
     }
 
     gravity_force(gravity) {
@@ -168,37 +182,58 @@ class Ball {
 
     bouncing() {
         let ground = 3.0
-        if(this.raduis>4.5)
-            ground= 21.0
-        else if(this.raduis>4)
-             ground= 19.0
-        else if(this.raduis>3.5)
-            ground= 17.0
-        else if(this.raduis>3)
-            ground= 14.0
-        else if(this.raduis>2.5)
-             ground= 12.0
-        else if(this.raduis>2)
-            ground= 9.0
-        else if(this.raduis>1.5)
-            ground= 7.0
-        else if(this.raduis>0.7)
-            ground= 5.0
-        if (this.position.y < ground ) {
-            this.position.y = ground
-            this.velocity._y *= -this.resistanse_coeff
+        if (this.raduis > 4.5)
+            ground = 21.0
+        else if (this.raduis > 4)
+            ground = 19.0
+        else if (this.raduis > 3.5)
+            ground = 17.0
+        else if (this.raduis > 3)
+            ground = 14.0
+        else if (this.raduis > 2.5)
+            ground = 12.0
+        else if (this.raduis > 2)
+            ground = 9.0
+        else if (this.raduis > 1.5)
+            ground = 7.0
+        else if (this.raduis > 0.7)
+            ground = 5.0
+        if (this.position.y < ground) {
+            let veloCopy = this.velocity.clone()
+            let angularCopy = this.angular_velocity.clone()
+
+            if (this.friction_coeff * (1 - this.resistanse_coeff) * veloCopy._y > 0.4 * (veloCopy._z - (angularCopy._x * this.raduis))) {
+
+                console.log("Roling")
+                console.log(this.angular_velocity._z * this.raduis)
+                console.log(this.angular_velocity._x * this.raduis)
+
+                this.position._x += this.angular_velocity._z * this.raduis
+                this.position._z -= this.angular_velocity._x * this.raduis
+            } else {
+
+                this.position.y = ground
+                this.velocity._y *= -this.resistanse_coeff
+
+                this.velocity._x = (0.6 * this.velocity._x) + (0.4 * this.angular_velocity._z * this.raduis)
+                this.velocity._z = (0.6 * this.velocity._z) + (0.4 * this.angular_velocity._x * this.raduis)
+
+                this.angular_velocity._z = -1 * ((0.4 * this.angular_velocity._z) + ((0.6 * veloCopy._x) / this.raduis))
+                this.angular_velocity._x = -1 * ((0.4 * this.angular_velocity._x) + ((0.6 * veloCopy._z) / this.raduis))
+            }
+
+
         }
     }
-
 
     fraction() {
         this.velocity._z = -this.velocity._z * 0.6
         this.velocity._x = -this.velocity._x * 0.6
-        this.angular_velocity.x = - this.angular_velocity.x *  0
-        this.angular_velocity.y = - this.angular_velocity.y *  0  
-        this.angular_velocity.z = - this.angular_velocity.z  * 0
+        this.angular_velocity.x = - this.angular_velocity.x * 0
+        this.angular_velocity.y = - this.angular_velocity.y * 0
+        this.angular_velocity.z = - this.angular_velocity.z * 0
     }
-    
+
     viscousTorque() {
         let v = vector.create(-this.angular_velocity.getX(), -this.angular_velocity.getY(), -this.angular_velocity.getZ())
         let len = (this.angular_velocity.getLength() * -8 * this.raduis * this.raduis * this.raduis * Math.PI * 0.0000185)
