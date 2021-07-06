@@ -192,10 +192,37 @@ class Ball {
 
         let result = vector.create(windTrouqe._x * this.raduis * 2, 0, windTrouqe._z * this.raduis * 2)
 
-        if(this.angular_velocity._x < 0)
-        result._x += fX
-        else 
-        result._x += fX
+        console.log(this.angular_velocity._z <0)
+        
+
+            result._x += fX
+
+            if(this.angular_velocity._z >0){
+                result._z -=fZ
+
+            }else {
+                result._z +=fZ
+
+            }
+
+            result._x += Math.abs(fX)
+
+            if(Math.abs(this.angular_velocity._x) <1 &&Math.abs( this.angular_velocity._z <1)){
+                this.angular_velocity._z = 0
+                this.angular_velocity._x = 0
+                this.angular_velocity._y = 0
+
+                return  vector.create(0,0,0)
+            }
+
+        // if(this.angular_velocity._z  < 0)
+        // result._z-=fZ
+        // else
+        // result._z+=fZ
+
+
+
+        // result._x += fX
 
        // result._z += fZ
 
@@ -359,8 +386,7 @@ class Ball {
                 this.angular_velocity._z = -1 * ((0.4 * this.angular_velocity._z) + ((0.6 * this.velocity._x) / this.raduis))
             }
         }
-    }
-
+    } 
     viscousTorque() {
         let v = vector.create(-this.angular_velocity.getX(), -this.angular_velocity.getY(), -this.angular_velocity.getZ())
         let len = (this.angular_velocity.getLength() * -8 * this.raduis * this.raduis * this.raduis * Math.PI * 0.0000185)
