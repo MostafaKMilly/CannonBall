@@ -190,7 +190,7 @@ class Ball {
         // }
 
 
-        let result = vector.create(windTrouqe._x * this.raduis * 2, 0, windTrouqe._z * this.raduis * 2)
+        let result = vector.create(-windTrouqe._z * this.raduis * 2, 0, windTrouqe._x * this.raduis * 2)
 
         console.log(this.angular_velocity._z <0)
         
@@ -208,17 +208,19 @@ class Ball {
                 result._x -= Math.abs(fX)
 
             }else {
-                result._x = Math.abs(fX)
+                result._x += Math.abs(fX)
 
             }
 
+            let tempWind  = result.clone()
+            tempWind.divideBy(I)
 
-            if(Math.abs(this.angular_velocity._x) <1 &&Math.abs( this.angular_velocity._z <1)){
+            if(Math.abs(this.angular_velocity._x + tempWind._x*time) <1 &&Math.abs( this.angular_velocity._z + tempWind._z*time )<1){
                 this.angular_velocity._z = 0
                 this.angular_velocity._x = 0
                 this.angular_velocity._y = 0
 
-                return  vector.create(0,0,0)
+               // return  vector.create(0,0,0)
             }
 
         // if(this.angular_velocity._z  < 0)
