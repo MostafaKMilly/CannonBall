@@ -49,17 +49,17 @@ let numberOfTargets = 7
 let score = 0
 let isObjectLoaded
 let intersectObjects = []
-
+let axesHelper
 /*
     Paramters
 */
 const paramters = {
-    windSpeed: 10,
+    windSpeed: 0,
     windAngle: Math.PI / 2,
     angular_speedX: 0,
     angular_speedY: 1,
     angular_speedZ: 0,
-    floorSize : 1500,
+    axesHelper : false,
     radius: 0.5,
     gravity: 9.8,
     dragCoeff: 0.47,
@@ -68,7 +68,6 @@ const paramters = {
     resistanseCoeff: 0.8,
     frictionCoeff: 0.8,
     mass: 1000,
-    axesHelper : false,
     speed: 20,
     type: 0,
     types: {
@@ -158,10 +157,6 @@ const world = new World(GRAVITY, HEIGHT, TEMPERETURE, WIND_SPEED, WIND_ANGLE)
 
 worldfolder.add(paramters, 'gravity', -10, 100, 0.1).name('gravity').onChange(() => {
     world.gravity = paramters.gravity
-})
-
-worldfolder.add(paramters , 'floorSize' , 1500 , 6000,20).name("floorSize").onChange(() => {
-    floor.scale.copy(new THREE.Vector3(paramters.floorSize*0.001,paramters.floorSize *0.001, 1))
 })
 
 worldfolder.add(paramters, 'windSpeed', 0, 100, 0.01).name("Wind Speed").onChange(() => {
@@ -352,7 +347,7 @@ cannonCover.material.roughness = 0.5
 barrel.add(cannonCover)
 
 const floor = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(paramters.floorSize,paramters.floorSize, 100, 100),
+    new THREE.PlaneBufferGeometry(5000, 5000, 100, 100),
     new THREE.MeshStandardMaterial({
         map: grassTextures.grassColorTexture,
         aoMap: grassTextures.grassAmbientOcclusionTexture,
@@ -523,7 +518,7 @@ const updateCannon = () => {
     /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
      */
 }
-let axesHelper
+
 let objectsToUpdate = []
 const createCannonBall = () => {
     removeBallsGreaterThanTwo()

@@ -10,12 +10,12 @@ const grassRoughnessTexture = textureLoader.load('textures\\grass\\7\\roughness.
 const grassHeightTexture = textureLoader.load('textures\\grass\\7\\height.png')
 
 
-grassColorTexture.repeat.set(25, 25)
-grassAmbientOcclusionTexture.repeat.set(25, 25)
-grassNormalTexture.repeat.set(25, 25)
-grassRoughnessTexture.repeat.set(25, 25)
-grassHeightTexture.repeat.set(25, 25)
-grassMetalnessTexture.repeat.set(25, 25)
+grassColorTexture.repeat.set(65, 65)
+grassAmbientOcclusionTexture.repeat.set(65, 65)
+grassNormalTexture.repeat.set(65, 65)
+grassRoughnessTexture.repeat.set(65, 65)
+grassHeightTexture.repeat.set(65, 65)
+grassMetalnessTexture.repeat.set(65, 65)
 
 
 grassColorTexture.wrapS = THREE.RepeatWrapping

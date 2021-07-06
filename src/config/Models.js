@@ -88,16 +88,6 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             fens2.position.z = fens2.position.z * i
             scene.add(fens2)
         }
-
-        gltfModel.scene.rotation.y = Math.PI
-        gltfModel.scene.position.set(43, 5, -800)
-        let fens3;
-        for (let i = -6; i < 6; i++) {
-            fens3 = gltfModel.scene.clone()
-            fens3.position.x += i * 25
-            scene.add(fens3)
-        }
-
     })
 
     gltfLoader.load('models/house/scene.gltf', (gltfModel) => {

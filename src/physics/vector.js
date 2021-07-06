@@ -63,7 +63,7 @@ var vector = {
 	},
 
 	getAngleXZ: function () {
-		return Math.atan(this._z/ this._x)|| 0;
+		return Math.atan2(this._x, this._z)|| 0;
 	},
 
 	getAngleZY: function () {

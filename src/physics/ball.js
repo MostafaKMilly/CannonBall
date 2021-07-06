@@ -1,6 +1,6 @@
 import vector from './vector'
 import * as THREE from 'three'
-import { Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 class Ball {
     constructor(position, speed, angleXY, angleXZ, raduis, type, mass, drag_coeff,
@@ -17,8 +17,8 @@ class Ball {
         this.rho = 0;
         if (this.type == 1) {
             this.rho = 500; // kg/m^3  wood
-            this.resistanse_coeff = 0.4
-            this.friction_coeff = 0.603
+            this.resistanse_coeff = 0.4603
+            this.friction_coeff = 0.4
             console.log("type is wood")
         }
         else if (this.type == 2) {
@@ -68,12 +68,14 @@ class Ball {
         let totalForce = vector.create(dragForce.getX() + windForce.getX() + liftForce.getX(),
             gravityForce.getY() + dragForce.getY() + liftForce.getY(),
             dragForce.getZ() + windForce.getZ() + liftForce.getZ());
+
+
+
         this.bouncing(time, gravity, windForce)
 
         //Linear Movement
-        if (this.rolling) {
+        if (this.rolling)
             gravityForce.setY(0)
-        }
         let acc = vector.create(totalForce.getX() / this.mass, totalForce.getY() /
             this.mass, totalForce.getZ() / this.mass)
 
@@ -84,7 +86,7 @@ class Ball {
             this.position.y += (this.velocity.getY() * time * 10)
             this.position.z -= (this.velocity.getZ() * time * 10)
         } else {
-            this.position.x += this.angular_velocity._z * this.raduis * time * 10
+            this.position.x -= this.angular_velocity._z * this.raduis * time * 10
             this.position.z += this.angular_velocity._x * this.raduis * time * 10
         }
         let interiaTensor = this.rotationMatrix.clone().multiply(this.IBody).multiply(this.rotationMatrix.clone().transpose())
@@ -92,39 +94,39 @@ class Ball {
         let viscousTorque = this.viscousTorque()
 
         //Total Torques
+
+
+
         let rollingTrouqe = vector.create(0, 0, 0)
         let torque = vector.create(0, 0, 0)
         if (this.rolling) {
             rollingTrouqe = this.getTotalRollingTrouqe(gravity, this.wind_force(air_rho, wind_velo), time)
-            /*             let windTrouqe = this.wind_force(air_rho, wind_velo).multiply(this.raduis)
-             */
-            torque = new Vector3(rollingTrouqe._x /* + windTrouqe.getX() */, 0, rollingTrouqe._z  /* + windTrouqe.getZ() */)
+
+            torque = new Vector3(rollingTrouqe._x, 0, rollingTrouqe._z)
+
+
         } else {
             torque = new Vector3(viscousTorque.getX(),
                 viscousTorque.getY(),
                 viscousTorque.getZ())
         }
+
+
         //Angular Movement
         this.angular_acc = torque.applyMatrix3(interiaTensor)
 
-
-        // if(this.rolling){
-        // if(Math.abs(this.angular_velocity._x)<Math.abs(this.angular_velocity._x + this.angular_acc.x * time))
-        // this.angular_velocity._x += Number(this.angular_acc.x.toFixed(4)) * time
-
-        // if(Math.abs(this.angular_velocity._z)<Math.abs(this.angular_velocity._z + this.angular_acc.z * time))
-        // this.angular_velocity._z += Number(this.angular_acc.z.toFixed(4)) * time
-
-        // }else{
-
-        // }
-        this.angular_velocity._x += this.angular_acc.x * time
-        this.angular_velocity._y += this.angular_acc.y * time
-        this.angular_velocity._z += this.angular_acc.z * time
+        if (!this.rolling) {
+            this.angular_velocity._x += this.angular_acc.x * time
+            this.angular_velocity._y += this.angular_acc.y * time
+            this.angular_velocity._z += this.angular_acc.z * time
+        } else {
+            this.angular_velocity._x += this.angular_acc.x * time
+            this.angular_velocity._z += this.angular_acc.z * time
+        }
 
         //Update angular velocity, rotation Matrix, quaternion 
 
-        /* console.log("xxx " + this.angular_velocity._x) */
+        console.log("x  " + this.angular_velocity._x + "   z   " + this.angular_velocity._z)
 
         this.updateQutatnion(this.angular_velocity, time)
         this.updateRotationMatrix(this.quaternion.normalize())
@@ -152,43 +154,55 @@ class Ball {
         let friction = this.frictionTorque(gravity)
         let I = 2 / 5 * this.mass * Math.pow(this.raduis, 2)
 
-        let fX, fZ
-        fX = friction
-        fZ = friction
+        let fX, fZ,c
+        
+        if(Math.abs(this.angular_velocity.z)  > Math.abs(this.angular_velocity.x)){
+            c = Math.abs(this.angular_velocity._x)/Math.abs(this.angular_velocity._z  + this.angular_velocity._x)
+            fX = friction*c
+            fZ = friction *(1-c)
 
-
-        if (Math.abs(this.angular_velocity._x) - Math.abs(friction * time / I) < 0) {
-            fX = 0
-            this.angular_velocity._x = 0
-            /* console.log("no friction at x") */
+        }else {
+            c = Math.abs(this.angular_velocity._z)/Math.abs(this.angular_velocity._z  + this.angular_velocity._x)
+            fZ = friction*c
+            fX = friction *(1-c)
 
         }
 
 
-        if (Math.abs(this.angular_velocity._z) - Math.abs(friction * time / I) < 0) {
-            fZ = 0
-            this.angular_velocity._z = 0
-            /* console.log("no friction at z") */
-        }
+        // fX = friction * Math.sin(this.velocity.getAngleXZ())
+        // fZ =friction * Math.cos(this.velocity.getAngleXZ())
 
 
-        let result = vector.create(-windTrouqe._z, 0, windTrouqe._x)
 
+
+        // if (Math.abs(this.angular_velocity._x) - Math.abs(friction * time / I) < 0) {
+        //     fX = 0
+        //     this.angular_velocity._x = 0
+        //     console.log("no friction at x")
+
+        // }
+
+
+        // if (Math.abs(this.angular_velocity._z) - Math.abs(friction * time / I) < 0) {
+        //     fZ = 0
+        //     this.angular_velocity._z = 0
+        //     console.log("no friction at z")
+        // }
+
+
+        let result = vector.create(windTrouqe._x * this.raduis * 2, 0, windTrouqe._z * this.raduis * 2)
+
+        if(this.angular_velocity._x < 0)
         result._x += fX
-        result._z -= fZ
-        // let xHelper = this.angular_velocity._x/Math.abs(this.angular_velocity._x) *-1 | 0
-        // let zHelper = this.angular_velocity._z/Math.abs(this.angular_velocity._z)*-1  | 0
+        else 
+        result._x += fX
 
-
-        let tempAcc = result.clone()
-        tempAcc.multiplyBy(this.raduis)
-        tempAcc.divideBy(I)
+       // result._z += fZ
 
 
 
 
-
-        result.multiply(this.raduis)
+        result.multiplyBy(this.raduis)
         result.divideBy(I)
         return result
     }
@@ -283,58 +297,31 @@ class Ball {
             let veloCopy = this.velocity.clone()
             let angularCopy = this.angular_velocity.clone()
 
-            let i1 = this.friction_coeff * (1 + this.resistanse_coeff) * veloCopy._y
-            let i2 = 0.4 * (veloCopy._x - (angularCopy._z * this.raduis))
+   
 
             this.position.y = ground
             this.velocity._y *= -this.resistanse_coeff
             this.angular_velocity._y *= -this.resistanse_coeff
             let costum = Math.sqrt(veloCopy._x * veloCopy._x + veloCopy._z * veloCopy._z)
 
-            /*  console.log(this.velocity._y / costum) */
+            console.log(this.velocity._y / costum)
 
             if (0.17 > this.velocity._y / costum) {
 
-                /* console.log("roll") */
+                console.log("roll")
                 this.velocity._y = 0
                 if (!this.rolling) {
-                    /* console.log("not rolling ") */
-                    this.angular_velocity._x = -this.velocity._z / this.raduis
-                    this.angular_velocity._z = this.velocity._x / this.raduis
+                    console.log("not rolling ")
+                    // this.angular_velocity._z = this.velocity._x/this.raduis
+                    // this.angular_velocity._x = -this.velocity._z/this.raduis
+                    this.angular_velocity._z = -1 * veloCopy._x
+                    this.angular_velocity._x = -1 * veloCopy._z
+                    // this.angular_velocity._z =0     
                 }
+
+
                 this.rolling = true
 
-
-                // this.position.x+=this.angular_velocity._z*this.raduis 
-                // this.position.z+=this.angular_velocity._x*this.raduis
-                // let I = 2 / 5 * this.mass * Math.pow(this.raduis, 2)
-
-                // // this.position._x += (this.friction_coeff * 5 * this.gravity * time) / (2*this.raduis)
-                // // this.position._z += (this.friction_coeff * 5 * this.gravity * time) / (2*this.raduis)
-                // let xHelper = this.angular_velocity._x/Math.abs(this.angular_velocity._x) *-1 | 0
-                // let zHelper = this.angular_velocity._z/Math.abs(this.angular_velocity._z)*-1  | 0
-
-                // let totalForces = vector.create(this.mass  * this.friction_coeff * gravity + wind._x,0,
-                //     this.mass  * this.friction_coeff * gravity + wind._z)
-
-
-                // if(Math.abs(this.angular_velocity._x) > Math.abs(time * (totalForces._x * this.raduis)/I )){
-                // // console.log("t1 " + this.angular_velocity._x )
-                //     this.angular_velocity._x = this.angular_velocity._x + time * (totalForces._z * this.raduis)/I 
-                //     // console.log("t2 " + this.angular_velocity._x )
-                //     this.position.z += (this.raduis * this.angular_velocity._x)
-
-                // }else {
-                // this.angular_velocity._x = 0}
-
-
-                // if(Math.abs(this.angular_velocity._z) > Math.abs(time * (totalForces._x * this.raduis)/I)){
-                // this.angular_velocity._z = this.angular_velocity._z + time * (totalForces._x * this.raduis)/I 
-                // this.position.x += ( this.raduis * this.angular_velocity._z)
-
-                // }
-                //     else 
-                //     this.angular_velocity._z = 0 
 
 
             } else {
@@ -349,6 +336,8 @@ class Ball {
                 this.angular_velocity._z = -1 * ((0.4 * this.angular_velocity._z) + ((0.6 * veloCopy._x) / this.raduis))
                 this.angular_velocity._x = -1 * ((0.4 * this.angular_velocity._x) + ((0.6 * veloCopy._z) / this.raduis))
             }
+
+
         }
     }
 
@@ -369,15 +358,8 @@ class Ball {
                 this.angular_velocity._z *= this.resistanse_coeff
                 this.velocity._x = -(0.6 * this.velocity._x) - (0.4 * this.angular_velocity._z * this.raduis)
                 this.angular_velocity._z = -1 * ((0.4 * this.angular_velocity._z) + ((0.6 * this.velocity._x) / this.raduis))
-
             }
         }
-
-        // this.velocity._z = -this.velocity._z * 0.6
-        // this.velocity._x = -this.velocity._x * 0.6
-        // this.angular_velocity.x = - this.angular_velocity.x * 0
-        // this.angular_velocity.y = - this.angular_velocity.y * 0
-        // this.angular_velocity.z = - this.angular_velocity.z * 0
     }
 
     viscousTorque() {
