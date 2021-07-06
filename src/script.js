@@ -54,12 +54,12 @@ let axesHelper
     Paramters
 */
 const paramters = {
-    windSpeed: 0,
+    windSpeed: 10,
     windAngle: Math.PI / 2,
     angular_speedX: 0,
     angular_speedY: 1,
     angular_speedZ: 0,
-    axesHelper : false,
+    axesHelper: false,
     radius: 0.5,
     gravity: 9.8,
     dragCoeff: 0.47,
@@ -116,7 +116,7 @@ const loadingManger = new THREE.LoadingManager(() => {
 const gltfLoader = new GLTFLoader(loadingManger)
 const textureLoader = new THREE.TextureLoader(loadingManger)
 const audioLoader = new THREE.AudioLoader(loadingManger)
-audioLoader.load('sounds/cannonShootingSound.mp3' , (audioBuffer) => {
+audioLoader.load('sounds/cannonShootingSound.mp3', (audioBuffer) => {
     shootingSoundEffect.setBuffer(audioBuffer)
 })
 
@@ -149,8 +149,6 @@ const texture = textureLoader.load(
     });
 
 /*
-
-/*
     Configure Pysics World
 */
 const world = new World(GRAVITY, HEIGHT, TEMPERETURE, WIND_SPEED, WIND_ANGLE)
@@ -166,11 +164,11 @@ worldfolder.add(paramters, 'windAngle', 0, 6.2831853072, 0.2).name("Wind Angle")
     world.wind_angle = paramters.windAngle
     rotateAboutPoint(flag, flagBase.position, new THREE.Vector3(0, 1, 0), paramters.windAngle)
 })
-worldfolder.add(paramters, 'height', -100,1000, 10).name("Height").onChange(() => {
+worldfolder.add(paramters, 'height', -100, 1000, 10).name("Height").onChange(() => {
     world.height = paramters.height
 })
 
-worldfolder.add(paramters, 'tempereture',-100, 100, 1).name("Tempereture").onChange(() => {
+worldfolder.add(paramters, 'tempereture', -100, 100, 1).name("Tempereture").onChange(() => {
     world.tempereture = paramters.tempereture
 })
 
@@ -182,9 +180,9 @@ ballFolder.add(paramters, 'axesHelper')
 ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
 let massController = ballFolder.add(paramters, 'mass', 100, 5000, 0.1).name('ball mass')
 ballFolder.add(paramters, 'speed', 1, 100, 1).name('ball speed')
-ballFolder.add(paramters, 'angular_speedX', -6.28*5,6.28*5, 0.1).name("Angular speed X")
-ballFolder.add(paramters, 'angular_speedY', -6.28*5, 6.28*5, 0.1).name("Angular speed Y")
-ballFolder.add(paramters, 'angular_speedZ', -6.28*5, 6.28*5, 0.1).name("Angular speed Z")
+ballFolder.add(paramters, 'angular_speedX', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed X")
+ballFolder.add(paramters, 'angular_speedY', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed Y")
+ballFolder.add(paramters, 'angular_speedZ', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed Z")
 const subFolder = ballFolder.addFolder('types')
 subFolder.add(paramters.types, 'default')
 subFolder.add(paramters.types, 'wood')
@@ -211,7 +209,7 @@ paramters.types.default()
 /* 
     Models
 */
-loadModels(scene, gltfLoader,intersectObjects)
+loadModels(scene, gltfLoader, intersectObjects)
 
 /*
     Events
@@ -273,11 +271,11 @@ window.addEventListener("click", () => {
         shootingSoundEffect.play()
         createCannonBall()
         let zPosition = cannon.position.z
-        gsap.to(cannon.position, { duration: 1.5, delay : 0.2,z:cannon.position.z + 15 })
+        gsap.to(cannon.position, { duration: 1.5, delay: 0.2, z: cannon.position.z + 15 })
         gsap.delayedCall(0.2, () => {
-            gsap.to(cannon.position, { duration: 1.5, delay : 0.2,z:zPosition })
+            gsap.to(cannon.position, { duration: 1.5, delay: 0.2, z: zPosition })
         })
-        
+
         lastShotingTime = window.performance.now()
     }
 });
@@ -414,18 +412,6 @@ target.position.set(0, 40, 480)
 target.position.set(0, 40, 480)
 scene.add(target)
 intersectObjects.push(target)
-/*
-let linePoints = []
-let lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
-let backLine
-let lineMaterial = new THREE.LineBasicMaterial({ color: 0x2be2e2, linewidth: 100 });
-let backLineDraw = function (x, y, z) {
-    linePoints.push(new THREE.Vector3(x, y, z))
-    lineGeometry.setFromPoints(linePoints);
-    backLine = new THREE.Line(lineGeometry, lineMaterial);
-    scene.add(backLine);
-}
-*/
 
 /*
     Overlay
@@ -515,8 +501,6 @@ const updateCannon = () => {
     camera.getWorldDirection(vector)
     angleXY = Math.asin(cannonDirection.clone().y)
     angleXZ = Math.acos(cannonDirection.clone().x)
-    /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
-     */
 }
 
 let objectsToUpdate = []
@@ -524,7 +508,7 @@ const createCannonBall = () => {
     removeBallsGreaterThanTwo()
     numberOfBalls--
     numberofBallsWidget.innerHTML = numberOfBalls
-    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius*5, 32, 32), new THREE.MeshStandardMaterial({
+    let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius * 5, 32, 32), new THREE.MeshStandardMaterial({
         map: paramters.ballTextures.color,
         aoMap: paramters.ballTextures.ao,
         roughnessMap: paramters.ballTextures.roughness,
@@ -541,7 +525,7 @@ const createCannonBall = () => {
     scene.add(axesHelper)
     const angular_speed = vector.create(paramters.angular_speedX, paramters.angular_speedY, paramters.angular_speedZ)
     let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), paramters.speed, angleXY, angleXZ
-    , paramters.radius, paramters.type, paramters.mass, paramters.dragCoeff, angular_speed, paramters.resistanseCoeff, paramters.frictionCoeff)
+        , paramters.radius, paramters.type, paramters.mass, paramters.dragCoeff, angular_speed, paramters.resistanseCoeff, paramters.frictionCoeff)
     world.add(physicsBall)
     objectsToUpdate.push({
         cannonBall,
@@ -556,7 +540,7 @@ const removeBallsGreaterThanTwo = () => {
             scene.remove(e.cannonBall)
             e.cannonBall.material.dispose()
             e.cannonBall.geometry.dispose()
-            intersectObjects = intersectObjects.filter((i) => i!==e.cannonBall)
+            intersectObjects = intersectObjects.filter((i) => i !== e.cannonBall)
         })
         objectsToUpdate = []
     }
@@ -602,6 +586,23 @@ const checkGame = () => {
     }
 }
 
+const checkBallPosition = (ball) => {
+    if (ball.position.z >= -2300 && ball.position.z <= 2300 && ball.position.x >= -2200 && ball.position.x <= 2200) {
+        return
+    }
+    else {
+        setTimeout(() => {
+
+            scene.remove(ball)
+            ball.geometry.dispose()
+            ball.material.dispose()
+            objectsToUpdate = objectsToUpdate.filter((e) => e.cannonBall !== ball)
+            intersectObjects = intersectObjects.filter((obj) => obj !== ball)
+            isCameraChasing = false
+        }, 1000)
+    }
+}
+
 let previousAngle = 1.5707963268 * 2;
 function rotateAboutPoint(obj, point, axis, theta) {
     obj.rotateOnAxis(axis, -previousAngle);
@@ -632,6 +633,7 @@ const tick = () => {
     for (const object of objectsToUpdate) {
         object.cannonBall.position.copy(object.physicsBall.position)
         object.cannonBall.quaternion.copy(object.physicsBall.quaternion)
+        checkBallPosition(object.cannonBall)
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
         axesHelper?.position?.copy(object.cannonBall.position)
@@ -646,7 +648,7 @@ const tick = () => {
                 upadteWidgets()
                 checkGame()
             }
-            else if (intersect.object.geometry.type !== "CircleGeometry"){
+            else if (intersect.object.geometry.type !== "CircleGeometry") {
                 object.physicsBall.fraction(intersect)
             }
         }

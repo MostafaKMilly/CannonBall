@@ -16,7 +16,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             }
             treeRight = gltfModel.scene.children[0].clone()
             treeRight.position.z += i
-            treeRight.position.x = 50
+            treeRight.position.x = 90
             scene.add(treeRight)
             intersectObjects.push(treeRight)
         }
@@ -28,7 +28,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             }
             treeLeft = gltfModel.scene.children[0].clone()
             treeLeft.position.z += i
-            treeLeft.position.x += -150
+            treeLeft.position.x += -190
             scene.add(treeLeft)
             intersectObjects.push(treeLeft)
         }
@@ -47,11 +47,11 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
     })
     gltfLoader.load('models/plants/scene.gltf', (gltfModel) => {
         gltfModel.scene.scale.set(1.5, 1.5, 1.5)
-        for (let i = 0; i < 130; i++) {
+        for (let i = 0; i < 400; i++) {
             const plants = gltfModel.scene.clone()
             plants.position.x = (Math.random() - 0.5) * 1300
-            if (plants.position.x > -220 && plants.position.x < 270) continue
-            plants.position.z = (Math.random() - 0.5) * 1300
+            if (plants.position.x > -270 && plants.position.x < 320) continue
+            plants.position.z = (Math.random() - 0.5) * 4000
             plants.rotation.y = Math.random() * Math.PI
             scene.add(plants)
         }
@@ -61,7 +61,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
 
     gltfLoader.load('models/fens/scene.gltf', (gltfModel) => {
         gltfModel.scene.scale.set(15, 15, 15)
-        gltfModel.scene.position.set(-70, 4, 40)
+        gltfModel.scene.position.set(-120, 4, 40)
         gltfModel.scene.rotation.y = Math.PI * 0.5
 
         gltfModel.scene.traverse(function (node) {
@@ -73,20 +73,28 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
 
         let fens;
 
-        for (let i = -18; i < 18; i++) {
+        for (let i = -60; i < 60; i++) {
             fens = gltfModel.scene.clone()
             fens.position.z = fens.position.z * i
             scene.add(fens)
         }
-        gltfModel.scene.position.set(270, 4, 40)
+        gltfModel.scene.position.set(320, 4, 40)
         gltfModel.scene.rotation.y = Math.PI * 0.5
 
         let fens2;
 
-        for (let i = -18; i < 18; i++) {
+        for (let i = -60; i < 60; i++) {
             fens2 = gltfModel.scene.clone()
             fens2.position.z = fens2.position.z * i
             scene.add(fens2)
+        }
+        gltfModel.scene.rotation.y = Math.PI
+        gltfModel.scene.position.set(39, 5, -2500)
+        let fens3;
+        for (let i = -9; i < 9; i++) {
+            fens3 = gltfModel.scene.clone()
+            fens3.position.x += i * 25
+            scene.add(fens3)
         }
     })
 
@@ -98,7 +106,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             }
         });
         gltfModel.scene.children[0].scale.set(10, 10, 10)
-        gltfModel.scene.children[0].position.set(100, 0, 0)
+        gltfModel.scene.children[0].position.set(140, 0, 0)
         gltfModel.scene.children[0].rotation.z = -Math.PI / 2
         let hosueOne
         for (let i = 430; i >= -430; i -= 430) {
@@ -107,7 +115,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             intersectObjects.push(hosueOne)
             scene.add(hosueOne)
         }
-        gltfModel.scene.children[0].position.set(-100, 0, 0)
+        gltfModel.scene.children[0].position.set(-140, 0, 0)
         gltfModel.scene.children[0].rotation.z = Math.PI / 2
         let hosueTwo;
         for (let i = 430; i >= -430; i -= 430) {
@@ -126,7 +134,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             }
         });
         gltfModel.scene.children[0].scale.set(10, 10, 10)
-        gltfModel.scene.children[0].position.set(100, 11, 0)
+        gltfModel.scene.children[0].position.set(140, 11, 0)
         let boxRight;
         for (let i = 520; i > -520; i -= 260) {
             if (i === 0) {
@@ -137,7 +145,7 @@ export const loadModels = (scene, gltfLoader, intersectObjects) => {
             scene.add(boxRight)
             intersectObjects.push(boxRight)
         }
-        gltfModel.scene.children[0].position.set(-100, 11, 0)
+        gltfModel.scene.children[0].position.set(-140, 11, 0)
 
         let boxLeft;
         for (let i = 520; i > -520; i -= 260) {

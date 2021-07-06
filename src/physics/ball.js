@@ -70,9 +70,9 @@ class Ball {
             dragForce.getZ() + windForce.getZ() + liftForce.getZ());
 
 
-
-        this.bouncing(time, gravity, windForce)
-
+            
+            this.bouncing(time, gravity, windForce)
+    
         //Linear Movement
         if (this.rolling)
             gravityForce.setY(0)
@@ -346,7 +346,6 @@ class Ball {
         if (!tempArray.length) {
             this.intersectsObjects.push(object.object)
             let normal = object.face.normal
-            console.log(object.face.normal)
             if ((normal.x >= normal.z || normal.x <= normal.z) && (Math.fround(normal.y) <= 0)) {
                 this.velocity._z *= this.resistanse_coeff
                 this.angular_velocity._x *= this.resistanse_coeff
