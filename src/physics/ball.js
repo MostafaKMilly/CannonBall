@@ -192,10 +192,37 @@ class Ball {
 
         let result = vector.create(windTrouqe._x * this.raduis * 2, 0, windTrouqe._z * this.raduis * 2)
 
-        if(this.angular_velocity._x < 0)
-        result._x += fX
-        else 
-        result._x += fX
+        console.log(this.angular_velocity._z <0)
+        
+
+            result._x += fX
+
+            if(this.angular_velocity._z >0){
+                result._z -=fZ
+
+            }else {
+                result._z +=fZ
+
+            }
+
+            result._x += Math.abs(fX)
+
+            if(Math.abs(this.angular_velocity._x) <1 &&Math.abs( this.angular_velocity._z <1)){
+                this.angular_velocity._z = 0
+                this.angular_velocity._x = 0
+                this.angular_velocity._y = 0
+
+                return  vector.create(0,0,0)
+            }
+
+        // if(this.angular_velocity._z  < 0)
+        // result._z-=fZ
+        // else
+        // result._z+=fZ
+
+
+
+        // result._x += fX
 
        // result._z += fZ
 
@@ -341,25 +368,12 @@ class Ball {
         }
     }
 
-    fraction(object) {
-        let tempArray = this.intersectsObjects.filter((element) => element === object.object)
-        if (!tempArray.length) {
-            this.intersectsObjects.push(object.object)
-            let normal = object.face.normal
-            console.log(object.face.normal)
-            if ((normal.x >= normal.z || normal.x <= normal.z) && (Math.fround(normal.y) <= 0)) {
-                this.velocity._z *= this.resistanse_coeff
-                this.angular_velocity._x *= this.resistanse_coeff
-                this.velocity._z = -(0.6 * this.velocity._z) - (0.4 * this.angular_velocity._x * this.raduis)
-                this.angular_velocity._x = -1 * ((0.4 * this.angular_velocity._x) + ((0.6 * this.velocity._z) / this.raduis))
-            }
-            else {
-                this.velocity._x *= this.resistanse_coeff
-                this.angular_velocity._z *= this.resistanse_coeff
-                this.velocity._x = -(0.6 * this.velocity._x) - (0.4 * this.angular_velocity._z * this.raduis)
-                this.angular_velocity._z = -1 * ((0.4 * this.angular_velocity._z) + ((0.6 * this.velocity._x) / this.raduis))
-            }
-        }
+    fraction() {
+        // this.velocity._z = -this.velocity._z * 0.6
+        // this.velocity._x = -this.velocity._x * 0.6
+        // this.angular_velocity.x = - this.angular_velocity.x * 0
+        // this.angular_velocity.y = - this.angular_velocity.y * 0
+        // this.angular_velocity.z = - this.angular_velocity.z * 0
     }
 
     viscousTorque() {
