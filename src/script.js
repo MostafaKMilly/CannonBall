@@ -59,6 +59,7 @@ const paramters = {
     angular_speedX: 0,
     angular_speedY: 1,
     angular_speedZ: 0,
+    floorSize : 1500,
     radius: 0.5,
     gravity: 9.8,
     dragCoeff: 0.47,
@@ -67,6 +68,7 @@ const paramters = {
     resistanseCoeff: 0.8,
     frictionCoeff: 0.8,
     mass: 1000,
+    axesHelper : false,
     speed: 20,
     type: 0,
     types: {
@@ -158,6 +160,10 @@ worldfolder.add(paramters, 'gravity', -10, 100, 0.1).name('gravity').onChange(()
     world.gravity = paramters.gravity
 })
 
+worldfolder.add(paramters , 'floorSize' , 1500 , 6000,20).name("floorSize").onChange(() => {
+    floor.scale.copy(new THREE.Vector3(paramters.floorSize*0.001,paramters.floorSize *0.001, 1))
+})
+
 worldfolder.add(paramters, 'windSpeed', 0, 100, 0.01).name("Wind Speed").onChange(() => {
     world.wind_speed = paramters.windSpeed
 })
@@ -177,12 +183,13 @@ worldfolder.add(paramters, 'tempereture',-100, 100, 1).name("Tempereture").onCha
 /* 
     Tweak gui values
 */
+ballFolder.add(paramters, 'axesHelper')
 ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
 let massController = ballFolder.add(paramters, 'mass', 100, 5000, 0.1).name('ball mass')
 ballFolder.add(paramters, 'speed', 1, 100, 1).name('ball speed')
-ballFolder.add(paramters, 'angular_speedX', -6.28, 6.28, 0.1).name("Angular speed X")
-ballFolder.add(paramters, 'angular_speedY', -6.28, 6.28, 0.1).name("Angular speed Y")
-ballFolder.add(paramters, 'angular_speedZ', -6.28, 6.28, 0.1).name("Angular speed Z")
+ballFolder.add(paramters, 'angular_speedX', -6.28*5,6.28*5, 0.1).name("Angular speed X")
+ballFolder.add(paramters, 'angular_speedY', -6.28*5, 6.28*5, 0.1).name("Angular speed Y")
+ballFolder.add(paramters, 'angular_speedZ', -6.28*5, 6.28*5, 0.1).name("Angular speed Z")
 const subFolder = ballFolder.addFolder('types')
 subFolder.add(paramters.types, 'default')
 subFolder.add(paramters.types, 'wood')
@@ -279,7 +286,7 @@ window.addEventListener("click", () => {
         lastShotingTime = window.performance.now()
     }
 });
-playAgain.addEventListener("click", () => {
+playAgain.addEventListener("mousedown", () => {
     gameFinshed.classList.add('hide')
     score = 0
     numberOfBalls = 20
@@ -345,7 +352,7 @@ cannonCover.material.roughness = 0.5
 barrel.add(cannonCover)
 
 const floor = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(1500, 1500, 100, 100),
+    new THREE.PlaneBufferGeometry(paramters.floorSize,paramters.floorSize, 100, 100),
     new THREE.MeshStandardMaterial({
         map: grassTextures.grassColorTexture,
         aoMap: grassTextures.grassAmbientOcclusionTexture,
@@ -516,7 +523,7 @@ const updateCannon = () => {
     /*     console.log(" Camera " + Math.asin(cannonDirection.clone().y) + " " + Math.acos(cannonDirection.clone().x) + " ")
      */
 }
-
+let axesHelper
 let objectsToUpdate = []
 const createCannonBall = () => {
     removeBallsGreaterThanTwo()
@@ -532,6 +539,11 @@ const createCannonBall = () => {
     cannonBall.castShadow = true
     cannonBall.position.copy(barrel.position.clone().add(new THREE.Vector3(0, 3.5, -1)));
     scene.add(cannonBall);
+    if (axesHelper) {
+        scene.remove(axesHelper)
+    }
+    axesHelper = new THREE.AxesHelper(5)
+    scene.add(axesHelper)
     const angular_speed = vector.create(paramters.angular_speedX, paramters.angular_speedY, paramters.angular_speedZ)
     let physicsBall = new Ball(barrel.position.clone().add(new THREE.Vector3(0, 3, -1)), paramters.speed, angleXY, angleXZ
     , paramters.radius, paramters.type, paramters.mass, paramters.dragCoeff, angular_speed, paramters.resistanseCoeff, paramters.frictionCoeff)
@@ -562,7 +574,6 @@ const updateTarget = (obj) => {
         target.position.copy(new THREE.Vector3(0, 40, 480).add(new THREE.Vector3((Math.random() - 0.4) * 40, (Math.random() - 0.5) * 7, 0)))
         intersectObjects.push(target)
         intersectObjects = intersectObjects.filter((e) => e != obj)
-        console.log(target)
         scene.remove(obj)
         obj.material.dispose()
         obj.geometry.dispose()
@@ -628,6 +639,9 @@ const tick = () => {
         object.cannonBall.quaternion.copy(object.physicsBall.quaternion)
         rayOrigin = object.cannonBall.position
         raycaster.set(rayOrigin, rayDirection)
+        axesHelper?.position?.copy(object.cannonBall.position)
+        axesHelper?.quaternion?.copy(object.cannonBall.quaternion)
+        axesHelper.visible = paramters.axesHelper
         const intersects = raycaster.intersectObjects(intersectObjects, true)
         for (let intersect of intersects) {
             if (!shotedTaregt.includes(intersect.object) && intersect.object.geometry.type === "CircleGeometry") {
@@ -638,7 +652,7 @@ const tick = () => {
                 checkGame()
             }
             else if (intersect.object.geometry.type !== "CircleGeometry"){
-                object.physicsBall.fraction()
+                object.physicsBall.fraction(intersect)
             }
         }
     }

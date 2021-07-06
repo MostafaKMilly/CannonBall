@@ -89,6 +89,10 @@ var vector = {
 	add: function (v2) {
 		return vector.create(this._x + v2.getX(), this._y + v2.getY(), this._z + v2.getZ());
 	},
+	sumToXZ:function(v){
+		this._x-=v
+		this._z-=v
+	},
 
 	// subtract: function(v2) {
 	// 	return vector.create(this._x - v2.getX(), this._y - v2.getY());
