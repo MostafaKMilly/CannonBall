@@ -195,7 +195,6 @@ class Ball {
         console.log(this.angular_velocity._z <0)
         
 
-            result._x += fX
 
             if(this.angular_velocity._z >0){
                 result._z -=fZ
@@ -229,7 +228,6 @@ class Ball {
 
 
 
-        result.multiplyBy(this.raduis)
         result.divideBy(I)
         return result
     }
