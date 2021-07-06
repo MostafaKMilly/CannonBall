@@ -204,7 +204,14 @@ class Ball {
 
             }
 
-            result._x += Math.abs(fX)
+            if(this.angular_velocity._x >0){
+                result._x -= Math.abs(fX)
+
+            }else {
+                result._x = Math.abs(fX)
+
+            }
+
 
             if(Math.abs(this.angular_velocity._x) <1 &&Math.abs( this.angular_velocity._z <1)){
                 this.angular_velocity._z = 0
