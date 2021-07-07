@@ -178,8 +178,8 @@ worldfolder.add(paramters, 'tempereture', -100, 100, 1).name("Tempereture").onCh
 */
 ballFolder.add(paramters, 'axesHelper')
 ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
-let massController = ballFolder.add(paramters, 'mass', 100, 5000, 0.1).name('ball mass')
-ballFolder.add(paramters, 'speed', 1, 100, 1).name('ball speed')
+let massController = ballFolder.add(paramters, 'mass', 1, 5000, 0.5).name('ball mass')
+ballFolder.add(paramters, 'speed', 1, 100, 0.1).name('ball speed')
 ballFolder.add(paramters, 'angular_speedX', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed X")
 ballFolder.add(paramters, 'angular_speedY', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed Y")
 ballFolder.add(paramters, 'angular_speedZ', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed Z")
