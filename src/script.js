@@ -280,7 +280,7 @@ window.addEventListener('touchmove', (event) => {
 })
 
 window.addEventListener("click", () => {
-    if (!isClicked && !isFinished && numberOfBalls && numberOfTargets && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
+    if (!isClicked && !isFinished && isObjectLoaded && numberOfBalls && numberOfTargets && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
         isClicked = false
         shootingSoundEffect.play()
         createCannonBall()
