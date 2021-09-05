@@ -4,8 +4,14 @@
     margin: 0;
 }
 
-html,body {
-    overflow: hidden;
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  position: relative;
 }
 .webgl {
     position: fixed;
@@ -15,7 +21,6 @@ html,body {
     bottom: 0;
     outline: none;
 }
-
 .loadingBar {
     position: absolute;
     top: 50%;

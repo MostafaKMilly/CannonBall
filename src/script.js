@@ -24,6 +24,17 @@ import vector from './physics/vector'
 */
 const gui = new dat.GUI()
 gui.close()
+let argument = window.matchMedia("(max-width: 425px)")
+let fun = (argument) => {
+    if (argument.matches) {
+        gui.width = 150
+    }
+    else {
+     gui.width = 250
+    }
+}
+fun(argument)
+argument.addListener(fun)
 const worldfolder = gui.addFolder('world')
 const ballFolder = gui.addFolder('ball')
 const coefficientsFolder = ballFolder.addFolder('coefficients')
@@ -50,6 +61,7 @@ let score = 0
 let isObjectLoaded
 let intersectObjects = []
 let axesHelper
+let isFinished = false
 /*
     Paramters
 */
@@ -177,12 +189,12 @@ worldfolder.add(paramters, 'tempereture', -100, 100, 1).name("Tempereture").onCh
     Tweak gui values
 */
 ballFolder.add(paramters, 'axesHelper')
-ballFolder.add(paramters, 'radius', 0, 5, 0.01).name('ball radius')
+ballFolder.add(paramters, 'radius', 0, 1, 0.01).name('ball radius')
 let massController = ballFolder.add(paramters, 'mass', 1, 5000, 0.5).name('ball mass')
-ballFolder.add(paramters, 'speed', 1, 100, 0.1).name('ball speed')
-ballFolder.add(paramters, 'angular_speedX', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed X")
-ballFolder.add(paramters, 'angular_speedY', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed Y")
-ballFolder.add(paramters, 'angular_speedZ', -6.28 * 5, 6.28 * 5, 0.1).name("Angular speed Z")
+ballFolder.add(paramters, 'speed', 10, 35, 0.1).name('ball speed')
+ballFolder.add(paramters, 'angular_speedX', -10, 10, 0.1).name("Angular speed X")
+ballFolder.add(paramters, 'angular_speedY', -10, 10, 0.1).name("Angular speed Y")
+ballFolder.add(paramters, 'angular_speedZ', -10, 10, 0.1).name("Angular speed Z")
 const subFolder = ballFolder.addFolder('types')
 subFolder.add(paramters.types, 'default')
 subFolder.add(paramters.types, 'wood')
@@ -262,11 +274,13 @@ window.addEventListener('mousemove', (event) => {
     mouse.y = event.pageY / size.height
 })
 window.addEventListener('touchmove', (event) => {
+    event.preventDefault()
     mouse.x = event.touches[0].clientX / size.width;
     mouse.y = event.touches[0].clientY / size.height;
 })
+
 window.addEventListener("click", () => {
-    if (!isClicked && numberOfBalls && numberOfTargets && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
+    if (!isClicked && !isFinished && numberOfBalls && numberOfTargets && window.performance.now() - lastShotingTime > SHOOT_DELAY) {
         isClicked = false
         shootingSoundEffect.play()
         createCannonBall()
@@ -275,7 +289,8 @@ window.addEventListener("click", () => {
         gsap.delayedCall(0.2, () => {
             gsap.to(cannon.position, { duration: 1.5, delay: 0.2, z: zPosition })
         })
-
+        isCameraChasing = true
+        setTimeout(() => isCameraChasing = false, 8000)
         lastShotingTime = window.performance.now()
     }
 });
@@ -286,6 +301,7 @@ playAgain.addEventListener("mousedown", () => {
     numberOfTargets = 7
     targetWidget.innerHTML = numberOfTargets
     scoreWidget.innerHTML = score
+    setTimeout(() => isFinished = false , 1000)
 })
 
 
@@ -345,7 +361,7 @@ cannonCover.material.roughness = 0.5
 barrel.add(cannonCover)
 
 const floor = new THREE.Mesh(
-    new THREE.PlaneBufferGeometry(5000, 5000, 100, 100),
+    new THREE.PlaneBufferGeometry(1500, 1500, 100, 100),
     new THREE.MeshStandardMaterial({
         map: grassTextures.grassColorTexture,
         aoMap: grassTextures.grassAmbientOcclusionTexture,
@@ -505,7 +521,7 @@ const updateCannon = () => {
 
 let objectsToUpdate = []
 const createCannonBall = () => {
-    removeBallsGreaterThanTwo()
+    removeBallsGreaterThanOne()
     numberOfBalls--
     numberofBallsWidget.innerHTML = numberOfBalls
     let cannonBall = new THREE.Mesh(new THREE.SphereGeometry(paramters.radius * 5, 32, 32), new THREE.MeshStandardMaterial({
@@ -534,8 +550,8 @@ const createCannonBall = () => {
     intersectObjects.push(cannonBall)
 }
 
-const removeBallsGreaterThanTwo = () => {
-    if (objectsToUpdate.length > 2) {
+const removeBallsGreaterThanOne = () => {
+    if (objectsToUpdate.length >= 1) {
         objectsToUpdate.forEach((e) => {
             scene.remove(e.cannonBall)
             e.cannonBall.material.dispose()
@@ -568,6 +584,7 @@ const upadteWidgets = () => {
     if (numberOfTargets == 0) {
         gameFinshed.classList.remove('hide')
         document.querySelector('.status').innerHTML = "You Won"
+        isFinished = true
     }
 }
 
@@ -577,26 +594,29 @@ const checkGame = () => {
         let status = document.querySelector('.status')
         status.innerHTML = "You Won"
         status.style.color = '#346751'
+        isFinished = true
     }
     else if (numberOfBalls <= numberOfTargets && numberOfTargets != 1) {
         gameFinshed.classList.remove('hide')
         let status = document.querySelector('.status')
         status.innerHTML = "You Lose"
         status.style.color = '#CE1212'
+        isFinished = true
     }
 }
 
 const checkBallPosition = (ball) => {
-    if (ball.position.z >= -2300 && ball.position.z <= 2300 && ball.position.x >= -2200 && ball.position.x <= 2200) {
+    if (ball.position.z >= -900 && ball.position.z <= 900 && ball.position.x >= -900 && ball.position.x <= 900) {
         return
     }
     else {
         setTimeout(() => {
-
             scene.remove(ball)
             ball.geometry.dispose()
             ball.material.dispose()
+            let ballItem = objectsToUpdate.filter((e) => e.cannonBall === ball)[0]
             objectsToUpdate = objectsToUpdate.filter((e) => e.cannonBall !== ball)
+            world.remove(ballItem.physicsBall)
             intersectObjects = intersectObjects.filter((obj) => obj !== ball)
             isCameraChasing = false
         }, 1000)
