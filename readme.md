@@ -4,9 +4,8 @@ Cannon ball is game was built for scientific calculations project in Information
 
 * * *
 
-## Cannonball in depth
-We Use alot of forces wich effect the ball during movment and here is the forces we use
-
+## Cannonball Movement
+We Use a lot of forces which affect the ball during movement and here is the forces we use
 * gravityForce
 * dragForce
 * windForce
@@ -40,3 +39,16 @@ updateQuaternion(vector, time) {
 | wood         |   0.4603    | 0.4       |
 | steal        |   0.597   |   0.7    |
 | rubber       |   0.828     | 0.7   |
+
+### Resources
+
+1. [physics for game developers](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiii-To5ujyAhVEhf0HHSWqAxoQFnoECCoQAQ&url=http%3A%2F%2Findex-of.co.uk%2FGame-Development%2FProgramming%2FPhysics%2520for%2520Game%2520Developers.pdf&usg=AOvVaw16SeXwAP-PQp9--L97RPGg)
+1. [game physics engine development by ian millington](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjH0pmM5-jyAhUAhf0HHQ8iCOQQFnoECAMQAQ&url=http%3A%2F%2Fwww.r-5.org%2Ffiles%2Fbooks%2Fcomputers%2Falgo-list%2Frealtime-3d%2FIan_Millington-Game_Physics_Engine_Development-EN.pdf&usg=AOvVaw3IeMO5_gN3raPDcNC5meEn)
+1. [gafferongames](https://gafferongames.com/)
+
+### Teammates
+
+* [Humam ALbazzal](https://github.com/dolorsy)
+* [Sedra Merkhan](https://github.com/sedramerkhan)
+* [AbdulRahman Armashi](https://github.com/abod3e4)
+* [Abdulaleem Alsayed](https://github.com/aabadaa)
