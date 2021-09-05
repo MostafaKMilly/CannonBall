@@ -1,2 +1,6 @@
-theme: jekyll-theme-cayman
-,show_downloads: [true]
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+- jekyll-remote-theme # add this line to the plugins list if you already have one
+title: [CannonBall]
+description: [shooting cannon ball game build with threejs]
+show_downloads: [true]
