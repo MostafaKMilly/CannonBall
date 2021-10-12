@@ -71,7 +71,7 @@ CannonBall
 
 ## Contribute
 If you are beginner take a look in [contibute](./CONTRIBUTING.md)
- ,if you have any feature or you have bugs create issue and PK to resolve it
+ ,if you have any feature or you have bugs create issue and PR to resolve it
 ### Teammates
 
 * [Humam ALbazzal](https://github.com/dolorsy)
