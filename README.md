@@ -1,4 +1,9 @@
-Cannon ball is game was built for scientific calculations project in Information technology engineering at Damascus university [Click here to play](https://mostafakmilly.github.io/CannonBall/dist/).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Hacktoberfest](https://img.shields.io/github/hacktoberfest/2021/MostafaKMilly/CannonBall?suggestion_label=help%20wanted)
+
+## Cannon ball
+
+is game was built for scientific calculations project in Information technology engineering university [Click here to play](https://mostafakmilly.github.io/CannonBall/dist/).
 
 ![intro](https://i.ibb.co/P5P8XY8/Screenshot-2021-09-06-001331.png)
 
@@ -30,22 +35,43 @@ updateQuaternion(vector, time) {
         this.quaternion.w += quaternionTemp.w * 0.5
     }
 ```
+## Project stucture
+```
+CannonBall
+│   README.md
+└───src
+│   │   index.html
+│   │   script.js
+|   |   style.css
+│   │
+│   └───config
+│       │   BaseTexures.js
+|       |   CannonTextures.js
+|       |   FlagBaseTextures.js
+|       |   FlagTexture.js
+|       |   GrassTexture.js
+|       |   Models.js
+|       |   TargetTexure.js
+│   
+└───physics
+    │   ball.js
+    │   vector.js
+    |   world.js
+```
 
-### Ball types
+- `physics` folder represent the logic of the game and we implement the movement and rotation of the ball in it
+- `src/script.js` file represent the view of the game and we use Threejs library to create 3d enviroment
 
+## Tech Stack
+* HTML
+* Javascript
+* CSS
+* Threejs
+* Webpack
 
-| type         | resistanse coeff  | friction coeff |
-|:-------------|:------------------|:------|
-| wood         |   0.4603    | 0.4       |
-| steal        |   0.597   |   0.7    |
-| rubber       |   0.828     | 0.7   |
-
-### Resources
-
-1. [physics for game developers](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiii-To5ujyAhVEhf0HHSWqAxoQFnoECCoQAQ&url=http%3A%2F%2Findex-of.co.uk%2FGame-Development%2FProgramming%2FPhysics%2520for%2520Game%2520Developers.pdf&usg=AOvVaw16SeXwAP-PQp9--L97RPGg)
-1. [game physics engine development by ian millington](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjH0pmM5-jyAhUAhf0HHQ8iCOQQFnoECAMQAQ&url=http%3A%2F%2Fwww.r-5.org%2Ffiles%2Fbooks%2Fcomputers%2Falgo-list%2Frealtime-3d%2FIan_Millington-Game_Physics_Engine_Development-EN.pdf&usg=AOvVaw3IeMO5_gN3raPDcNC5meEn)
-1. [gafferongames](https://gafferongames.com/)
-
+## Contribute
+If you are beginner take a look in [contibute](./CONTRIBUTING.md)
+ ,if you have any feature or you have bugs create issue and PK to resolve it
 ### Teammates
 
 * [Humam ALbazzal](https://github.com/dolorsy)
